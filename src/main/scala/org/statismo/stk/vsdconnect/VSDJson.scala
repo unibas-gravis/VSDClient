@@ -16,8 +16,13 @@ case class VSDObjectInfo (sliceThickness: Option[Float], spaceBetweenSlices:Opti
     ontologyItems:Option[ Seq[VSDURL]],  ontologyItemRelations:Option[ Seq[VSDURL]], selfUrl:String
 )
 
+case class VSDPagination(rpp : Int, page:Int)
+
 case class VSDOntology(key : Int, value : String)
 case class VSDOntologies(types : Array[VSDOntology])
+case class VSDOntologyItem(id : Int, term:String, `type`: Int, selfUrl : String)
+case class VSDObjectOntologyItem(id : Int, position: Int, `type` : Int, `object` : VSDURL, ontologyItem: VSDURL, selfUrl :String)
+case class VSDOntologyItemsListPerType(totalCount : Int, pagination : VSDPagination, items: Array[VSDOntologyItem],  nextPageUrl: Option[String]) 
 
 object VSDJson {
 
@@ -30,28 +35,12 @@ object VSDJson {
 	implicit val VSDObjectIdProtocol = jsonFormat1(VSDObjectID.apply)
 	implicit val VSDFileIdProtocol = jsonFormat1(VSDFileID.apply)
 	implicit val FileUploadResponseFormat = jsonFormat2(FileUploadResponse.apply)
-	implicit val teamFormat = jsonFormat16(VSDObjectInfo)
+	implicit val VSDObjectInfoProtocol = jsonFormat16(VSDObjectInfo)
 	implicit val VSDOntologyProtocol = jsonFormat2(VSDOntology) 
 	implicit val VSDOntologiesProtocol = jsonFormat1(VSDOntologies)
+	implicit val VSDOntologyItemProtocol = jsonFormat4(VSDOntologyItem)
+	implicit val VSDPaginationProtocol = jsonFormat2(VSDPagination)
+	implicit val VSDOntologyItemsListPerTypeProtocol = jsonFormat4(VSDOntologyItemsListPerType)
+	implicit val VSDObjectOntologyItemProtocol = jsonFormat6(VSDObjectOntologyItem)
 	
-	
-//    implicit object FileUploadResponseFormat extends RootJsonFormat[FileUploadResponse] {
-//      def write(c: FileUploadResponse) = JsObject(
-//        "id" -> JsNumber(c.id.id),
-//        "createdDate" -> JsString(c.createdDate),
-//        "size" -> JsNumber(c.size),
-//        "hashCode" -> JsString(c.vsdHashCode),
-//        "anonymizedHashCode" -> JsString(c.anonymizedHashCode),
-//        "originalFileName" -> JsString(c.originalFileName),
-//        "downloadUrl" -> JsString(c.downloadUrl))
-//
-//      def read(value: JsValue) = {
-//        value.asJsObject.getFields("id", "createdDate", "size", "hashCode", "anonymizedHashCode", "originalFileName", "downloadUrl") match {
-//
-//          case Seq(JsNumber(id), JsString(date), JsNumber(size), JsString(code), JsString(anonymizedHashCode), JsString(originalFileName), JsString(downloadUrl)) =>
-//            FileUploadResponse(VSDFileID(id.toInt), date, size.toInt, code, anonymizedHashCode, originalFileName, downloadUrl)
-//          case e => throw new DeserializationException("File upload response deserialization error " +e)
-//        }
-//      }
-//    }
 }

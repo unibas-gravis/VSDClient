@@ -75,15 +75,14 @@ class VSDConnect(user: String, password: String, formAuthenticationFlag: Boolean
     addCredentials(BasicHttpCredentials(user, password)) ~> sendReceive
   else {
     println("Using form authentication")
-    Await.result( FormAuthentication.getAuthChannel(user, password,system), Duration(2, MINUTES))
+    Await.result(FormAuthentication.getAuthChannel(user, password, system), Duration(2, MINUTES))
   }
-  
+
   /**
    * This function returns the generated VSD file id or an exception in case the send failed
    */
   def sendFile(f: File, nbRetrials: Int = 0): Future[Try[(VSDFileID, VSDObjectID)]] = {
 
-    println("uploading " + f.getName)
     val pipe = authChannel ~> unmarshal[FileUploadResponse]
     val bArray = Files.readAllBytes(f.toPath)
     val req = Post(UPLOAD_URL, MultipartFormData(Seq(
@@ -142,11 +141,8 @@ class VSDConnect(user: String, password: String, formAuthenticationFlag: Boolean
    */
   def downloadFile(url: VSDURL, downloadDir: File, fileName: String): Future[Try[File]] = {
     require(downloadDir.isDirectory)
-    println("Downloading file from " + url.selfUrl)
     authChannel(Get(url.selfUrl)).map { r =>
       if (r.status.isSuccess) {
-        println("response length " + r.entity.data.length)
-
         val file = new File(downloadDir.getAbsolutePath(), fileName)
         val os = new FileOutputStream(file)
         os.write(r.entity.data.toByteArray)
@@ -187,6 +183,57 @@ class VSDConnect(user: String, password: String, formAuthenticationFlag: Boolean
     channel(Options("https://demo.virtualskeleton.ch/api/ontologies"))
   }
 
+  def listOntologyItemsForType(typ: Int, nbRetrialsPerPage: Int = 3): Future[Array[VSDOntologyItem]] = {
+    val channel = authChannel ~> unmarshal[VSDOntologyItemsListPerType]
+
+    def internalRecursion(nextPage: String, nbRetrials: Int): Future[Array[VSDOntologyItem]] = {
+      val f = channel(Get(nextPage)).flatMap { l =>
+        val currentPageList = l.items
+        if (l.nextPageUrl.isDefined) internalRecursion(l.nextPageUrl.get, nbRetrialsPerPage).map(nextPageList => currentPageList ++ nextPageList) else Future { currentPageList }
+      }
+
+      val t = f.recoverWith {
+        case e =>
+          if (nbRetrials > 0)
+            internalRecursion(nextPage, nbRetrials - 1)
+          else throw e
+      }
+      t
+    }
+    internalRecursion(s"https://demo.virtualskeleton.ch/api/ontologies/${typ}/", nbRetrialsPerPage)
+  }
+
+  def getOntologyItemInfo(url: VSDURL): Future[VSDOntologyItem] = {
+    val channel = authChannel ~> unmarshal[VSDOntologyItem]
+    channel(Get(url.selfUrl))
+  }
+
+  def createObjectOntologyItemRelation(objectInfo: VSDObjectInfo, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
+    val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
+    getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
+      val newRelation = VSDObjectOntologyItem(1, 0, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
+      channel(Post(s"https://demo.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}", newRelation))
+    }
+  }
+  
+  def updateObjectOntologyItemRelation(id:Int, objectInfo: VSDObjectInfo, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
+    val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
+    val position = objectInfo.ontologyItemRelations.map(_.size).getOrElse(0)
+    getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
+      val newRelation = VSDObjectOntologyItem(id, position, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
+      channel(Put(s"https://demo.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}/${id}", newRelation))
+    }
+  }
+  
+  
+  def deleteVSDFile(id: VSDFileID) : Future[Try[HttpResponse]] = {
+    val channel = authChannel ~> VSDConnect.printStep
+    channel(Delete(s"https://demo.virtualskeleton.ch/api/files/${id.id}")).map {r => 
+    	if(r.status.intValue == 204) Success(r) else Failure(new Exception(s"failed to delete vsd file id ${id}"+ r.entity.toString()))
+    }
+  } 
+  
+  
   /**
    * Download of object is always shipped in one zip file
    */
