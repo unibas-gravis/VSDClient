@@ -56,6 +56,7 @@ import SprayJsonSupport._
 import java.io.FileOutputStream
 import spray.http.HttpResponse
 import scala.concurrent.Await
+import spray.httpx.unmarshalling.FromResponseUnmarshaller
 
 /**
  * Simple upload of files based on Basic authentication
@@ -203,6 +204,30 @@ class VSDConnect(user: String, password: String, formAuthenticationFlag: Boolean
     internalRecursion(s"https://demo.virtualskeleton.ch/api/ontologies/${typ}/", nbRetrialsPerPage)
   }
 
+  
+  /**
+   * Boilerplate : need to make pagination handling generic
+  **/
+    
+  def listUnpublishedObjects(nbRetrialsPerPage: Int = 3): Future[Array[VSDObjectInfo]] = {
+    val channel = authChannel ~> VSDConnect.printStep ~> unmarshal[VSDPaginatedListObjects]
+
+    def internalRecursion(nextPage: String, nbRetrials: Int): Future[Array[VSDObjectInfo]] = {
+      val f = channel(Get(nextPage)).flatMap { l =>
+        val currentPageList = l.items
+        if (l.nextPageUrl.isDefined) internalRecursion(l.nextPageUrl.get, nbRetrialsPerPage).map(nextPageList => currentPageList ++ nextPageList) else Future { currentPageList }
+      }
+      val t = f.recoverWith {
+        case e =>
+          if (nbRetrials > 0)
+            internalRecursion(nextPage, nbRetrials - 1)
+          else throw e
+      }
+      t
+    }
+    internalRecursion(s"https://demo.virtualskeleton.ch/api/objects/unpublished/", nbRetrialsPerPage)
+  }
+
   def getOntologyItemInfo(url: VSDURL): Future[VSDOntologyItem] = {
     val channel = authChannel ~> unmarshal[VSDOntologyItem]
     channel(Get(url.selfUrl))
@@ -215,8 +240,8 @@ class VSDConnect(user: String, password: String, formAuthenticationFlag: Boolean
       channel(Post(s"https://demo.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}", newRelation))
     }
   }
-  
-  def updateObjectOntologyItemRelation(id:Int, objectInfo: VSDObjectInfo, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
+
+  def updateObjectOntologyItemRelation(id: Int, objectInfo: VSDObjectInfo, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
     val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
     val position = objectInfo.ontologyItemRelations.map(_.size).getOrElse(0)
     getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
@@ -224,16 +249,16 @@ class VSDConnect(user: String, password: String, formAuthenticationFlag: Boolean
       channel(Put(s"https://demo.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}/${id}", newRelation))
     }
   }
-  
-  
-  def deleteVSDFile(id: VSDFileID) : Future[Try[HttpResponse]] = {
-    val channel = authChannel ~> VSDConnect.printStep
-    channel(Delete(s"https://demo.virtualskeleton.ch/api/files/${id.id}")).map {r => 
-    	if(r.status.intValue == 204) Success(r) else Failure(new Exception(s"failed to delete vsd file id ${id}"+ r.entity.toString()))
-    }
-  } 
-  
-  
+
+
+
+  //  def deleteVSDFile(id: VSDFileID) : Future[Try[HttpResponse]] = {
+  //    val channel = authChannel ~> VSDConnect.printStep
+  //    channel(Delete(s"https://demo.virtualskeleton.ch/api/files/${id.id}")).map {r => 
+  //    	if(r.status.intValue == 204) Success(r) else Failure(new Exception(s"failed to delete vsd file id ${id}"+ r.entity.toString()))
+  //    }
+  //  } 
+
   /**
    * Download of object is always shipped in one zip file
    */

@@ -159,7 +159,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     it("can update the information of one object to be of a given ontology item") {
       val ontoItem = Await.result(ontologyItem.future, Duration(1, MINUTES))
       val oldObinf = Await.result(objInfo.future, Duration(1, MINUTES))
-      val newObjOntoItemF = vsd.createObjectOntologyItemRelation(oldObinf, VSDURL(ontoItem.selfUrl))
+      val newObjOntoItemF = vsd.createObjectOntologyItemRelation(oldObinf, VSDURL(ontoItem.selfUrl)) 
       whenReady(newObjOntoItemF, timeout(Span(2, Minutes))) { newObjOntoItem =>
         assert(newObjOntoItem.position === oldObinf.ontologyItemRelations.map(_.size).getOrElse(0))
         objOntoItemRelationId.success(newObjOntoItem.id)
@@ -186,21 +186,26 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
       whenReady(secondObjItemF, timeout(Span(2, Minutes))) { newObjOntoItem =>
         assert(newObjOntoItem.ontologyItem.selfUrl === ontoItem.selfUrl)
-
-        readyToClean.success(true)
       }
     }
 
-    it("can delete a VSD file") {
-      val fileId = Await.result(uploadedFile.future, Duration(1, MINUTES))
-      
-      val allotherTestsDone = Await.result(readyToClean.future, Duration(6, MINUTES))
-      val d = vsd.deleteVSDFile(fileId)
-      
-      whenReady(d, timeout(Span(1, Minutes))) { r =>
-        assert(r.isSuccess)
-      }
+    it("uploaded object appears in list of unpublished objects") {
+      val info = Await.result(objInfo.future, Duration(1, MINUTES))
+      val unpublishedF = vsd.listUnpublishedObjects(3)       
+      val t = unpublishedF.map(l => l.map(_.id).contains (info.id))
+      whenReady(t, timeout(Span(1, Minutes))) { v => assert(v)}
     }
+
+    //    it("can delete a VSD file") {
+    //      val fileId = Await.result(uploadedFile.future, Duration(1, MINUTES))
+    //      
+    //      val allotherTestsDone = Await.result(readyToClean.future, Duration(6, MINUTES))
+    //      val d = vsd.deleteVSDFile(fileId)
+    //      
+    //      whenReady(d, timeout(Span(1, Minutes))) { r =>
+    //        assert(r.isSuccess)
+    //      }
+    //    }
 
   }
 

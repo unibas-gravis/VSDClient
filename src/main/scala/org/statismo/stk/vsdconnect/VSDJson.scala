@@ -3,8 +3,7 @@ package org.statismo.stk.vsdconnect
 import spray.json._
 import DefaultJsonProtocol._
 
-
-case class VSDObjectID(id: Int)
+case class VSDObjectID(id: Int) 
 case class VSDFileID(id: Int)
 
 case class VSDURL(selfUrl : String)
@@ -23,6 +22,9 @@ case class VSDOntologies(types : Array[VSDOntology])
 case class VSDOntologyItem(id : Int, term:String, `type`: Int, selfUrl : String)
 case class VSDObjectOntologyItem(id : Int, position: Int, `type` : Int, `object` : VSDURL, ontologyItem: VSDURL, selfUrl :String)
 case class VSDOntologyItemsListPerType(totalCount : Int, pagination : VSDPagination, items: Array[VSDOntologyItem],  nextPageUrl: Option[String]) 
+case class VSDPaginatedListObjects(totalCount : Int, pagination : VSDPagination, items: Array[VSDObjectInfo],  nextPageUrl: Option[String]) 
+
+
 
 object VSDJson {
 
@@ -42,5 +44,7 @@ object VSDJson {
 	implicit val VSDPaginationProtocol = jsonFormat2(VSDPagination)
 	implicit val VSDOntologyItemsListPerTypeProtocol = jsonFormat4(VSDOntologyItemsListPerType)
 	implicit val VSDObjectOntologyItemProtocol = jsonFormat6(VSDObjectOntologyItem)
+	implicit val VSDPaginatedListObjectsProtocol = jsonFormat4(VSDPaginatedListObjects)
+	
 	
 }
