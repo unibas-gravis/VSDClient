@@ -16,7 +16,6 @@ case class VSDObjectInfo (sliceThickness: Option[Float], spaceBetweenSlices:Opti
 )
 
 case class VSDPagination(rpp : Int, page:Int)
-
 case class VSDOntology(key : Int, value : String)
 case class VSDOntologies(types : Array[VSDOntology])
 case class VSDOntologyItem(id : Int, term:String, `type`: Int, selfUrl : String)

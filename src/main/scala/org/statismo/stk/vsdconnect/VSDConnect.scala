@@ -62,7 +62,7 @@ import spray.httpx.unmarshalling.FromResponseUnmarshaller
  * Simple upload of files based on Basic authentication
  */
 
-class VSDConnect(user: String, password: String, formAuthenticationFlag: Boolean = false) {
+class VSDConnect(user: String, password: String) {
 
   implicit val system = ActorSystem(s"VSDConnect-user-${user.replace("@", "-").replace(".", "-")}")
   import system.dispatcher
@@ -71,14 +71,8 @@ class VSDConnect(user: String, password: String, formAuthenticationFlag: Boolean
   val FILEBASE_URL = "https://demo.virtualskeleton.ch/api/files/"
 
   val log = Logging(system, getClass)
-
-  val authChannel = if (!formAuthenticationFlag)
-    addCredentials(BasicHttpCredentials(user, password)) ~> sendReceive
-  else {
-    println("Using form authentication")
-    Await.result(FormAuthentication.getAuthChannel(user, password, system), Duration(2, MINUTES))
-  }
-
+  val authChannel =  addCredentials(BasicHttpCredentials(user, password)) ~> sendReceive
+ 
   /**
    * This function returns the generated VSD file id or an exception in case the send failed
    */
