@@ -1,6 +1,8 @@
-organization  := "com.example"
+organization  := "org.statismo"
 
 version       := "0.1"
+
+name := "stkvsdconnect"
 
 scalaVersion  := "2.10.3"
 
