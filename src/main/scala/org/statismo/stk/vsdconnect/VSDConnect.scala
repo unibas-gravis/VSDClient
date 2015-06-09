@@ -186,12 +186,12 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     }
   }
 
-  //  def deleteVSDFile(id: VSDFileID) : Future[Try[HttpResponse]] = {
-  //    val channel = authChannel ~> VSDConnect.printStep
-  //    channel(Delete(s"https://www.virtualskeleton.ch/api/files/${id.id}")).map {r =>
-  //    	if(r.status.intValue == 204) Success(r) else Failure(new Exception(s"failed to delete vsd file id ${id}"+ r.entity.toString()))
-  //    }
-  //  } 
+  def deleteUnpublishedVSDObject(id: VSDObjectID): Future[Try[HttpResponse]] = {
+    val channel = authChannel ~> VSDConnect.printStep
+    channel(Delete(s"$BASE_URL/objects/${id.id}")).map { r =>
+      if (r.status.isSuccess) Success(r) else Failure(new Exception(s"failed to delete unpublished vsd object id ${id}" + r.entity.toString()))
+    }
+  }
 
   /**
    * Download of object is always shipped in one zip file

@@ -201,19 +201,25 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       println("checking that uploaded object appears in list")
       val unpublishedF = vsd.listUnpublishedObjects(3)       
       val t = unpublishedF.map(l => l.map(_.id).contains (info.id))
-      whenReady(t, timeout(Span(1, Minutes))) { v => assert(v)}
+      whenReady(t, timeout(Span(1, Minutes))) { v =>
+
+        readyToClean.complete(Success(true))
+
+        assert(v)
+      }
+
     }
 
-    //    it("can delete a VSD file") {
-    //      val fileId = Await.result(uploadedFile.future, Duration(1, MINUTES))
-    //      
-    //      val allotherTestsDone = Await.result(readyToClean.future, Duration(6, MINUTES))
-    //      val d = vsd.deleteVSDFile(fileId)
-    //      
-    //      whenReady(d, timeout(Span(1, Minutes))) { r =>
-    //        assert(r.isSuccess)
-    //      }
-    //    }
+    it("can delete an unpublished VSD object") {
+      val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
+      // Wait until all other tests finished
+      Await.result(readyToClean.future, Duration(6, MINUTES))
+
+      val d = vsd.deleteUnpublishedVSDObject(objId)
+      whenReady(d, timeout(Span(1, Minutes))) { r =>
+        assert(r.isSuccess)
+      }
+    }
 
   }
 
