@@ -1,74 +1,35 @@
 package org.statismo.stk.vsdconnect
 
-import java.io.File
+import java.io.{File, FileOutputStream}
 import java.nio.file.Files
-import scala.Array.canBuildFrom
-import scala.concurrent.Future
-import scala.concurrent.duration.DurationInt
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout.durationToTimeout
+import org.statismo.stk.vsdconnect.VSDJson._
 import spray.can.Http
-import spray.can.Http.ConnectionException
-import spray.client.pipelining.Post
-import spray.client.pipelining.WithTransformerConcatenation
-import spray.client.pipelining.addCredentials
-import spray.client.pipelining.sendReceive
-import spray.client.pipelining.sendReceive$default$3
-import spray.http.BasicHttpCredentials
-import spray.http.BodyPart
-import spray.http.ContentType
-import spray.http.HttpEntity
-import spray.http.HttpHeaders
-import spray.http.HttpRequest
-import spray.http.HttpResponse
-import spray.http.MediaTypes
-import spray.http.MultipartFormData
+import spray.client.pipelining
+import spray.client.pipelining.{Post, WithTransformerConcatenation, addCredentials, sendReceive, _}
+import spray.http._
+import spray.httpx.SprayJsonSupport._
 import spray.util.pimpFuture
-import scala.util.{ Success, Failure }
-import scala.concurrent.duration._
-import akka.actor.ActorSystem
-import akka.pattern.ask
-import akka.event.Logging
-import akka.io.IO
-import spray.json.{ JsonFormat, DefaultJsonProtocol }
-import spray.can.Http
-import spray.httpx.SprayJsonSupport
-import spray.client.pipelining._
-import spray.util._
-import spray.http.BasicHttpCredentials
-import java.net.URLEncoder
-import spray.http.HttpHeaders.Cookie
-import spray.http.HttpRequest
-import spray.http.HttpEntity
-import spray.http.ContentTypes
-import spray.http.ContentType
-import spray.http.HttpRequest
-import spray.http.MediaTypes
-import spray.http.HttpHeader
-import VSDJson._
-import SprayJsonSupport._
-import java.io.FileOutputStream
-import spray.http.HttpResponse
-import scala.concurrent.Await
-import spray.httpx.unmarshalling.FromResponseUnmarshaller
+
+import scala.Array.canBuildFrom
+import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
+import scala.reflect.ClassTag
+import scala.util.{Failure, Success, Try}
 
 /**
  * Simple upload of files based on Basic authentication
  */
 
-class VSDConnect private (user: String, password: String) {
+class VSDConnect private (user: String, password: String, BASE_URL: String) {
 
   implicit val system = ActorSystem(s"VSDConnect-user-${user.replace("@", "-").replace(".", "-")}")
   import system.dispatcher
-
-  val UPLOAD_URL = "https://www.virtualskeleton.ch/api/upload/"
-  val FILEBASE_URL = "https://www.virtualskeleton.ch/api/files/"
 
   val log = Logging(system, getClass)
   val authChannel =  addCredentials(BasicHttpCredentials(user, password)) ~> sendReceive
@@ -80,7 +41,7 @@ class VSDConnect private (user: String, password: String) {
 
     val pipe = authChannel ~> unmarshal[FileUploadResponse]
     val bArray = Files.readAllBytes(f.toPath)
-    val req = Post(UPLOAD_URL, MultipartFormData(Seq(
+    val req = Post(s"$BASE_URL/upload/", MultipartFormData(Seq(
       BodyPart(
         HttpEntity(ContentType(MediaTypes.`multipart/form-data`), bArray),
         HttpHeaders.`Content-Disposition`("form-data", Map("filename" -> (f.getName + ".dcm"))) :: Nil))))
@@ -153,17 +114,17 @@ class VSDConnect private (user: String, password: String) {
    * This method downloads a file from the VSD given its file ID
    */
   def downloadFile(id: VSDFileID, downloadDir: File, fileName: String): Future[Try[File]] = {
-    downloadFile(VSDURL(s"https://www.virtualskeleton.ch/api/files/${id.id}/download"), downloadDir, fileName)
+    downloadFile(VSDURL(s"$BASE_URL/files/${id.id}/download"), downloadDir, fileName)
   }
 
   def getVSDObjectInfo(id: VSDObjectID) = {
     val pipe = authChannel ~> unmarshal[VSDObjectInfo]
-    pipe(Get(s"https://www.virtualskeleton.ch/api/objects/${id.id}"))
+    pipe(Get(s"$BASE_URL/objects/${id.id}"))
   }
 
   def updateVSDObjectInfo(info: VSDObjectInfo, nbRetrials: Int = 0): Future[Try[HttpResponse]] = {
 
-    val resp = authChannel(Put(s"https://www.virtualskeleton.ch/api/objects/${info.id}", info)).map { s => Success(s) }
+    val resp = authChannel(Put(s"$BASE_URL/objects/${info.id}", info)).map { s => Success(s) }
     resp.recoverWith {
       case e =>
         if (nbRetrials > 0) {
@@ -173,53 +134,34 @@ class VSDConnect private (user: String, password: String) {
     }
   }
 
+
+  private def paginationRecursion[A : ClassTag](nextPage: String, nbRetrials: Int,  channel : pipelining.WithTransformerConcatenation[HttpRequest, Future[VSDPaginatedList[A]]], nbRetrialsPerPage: Int = 3): Future[Array[A]] = {
+    val f : Future[Array[A]] = channel(Get(nextPage)).flatMap { l =>
+      val currentPageList : Array[A] = l.items
+      if (l.nextPageUrl.isDefined) paginationRecursion(l.nextPageUrl.get, nbRetrialsPerPage, channel, nbRetrialsPerPage).map(nextPageList => currentPageList ++ nextPageList ) else Future { currentPageList }
+    }
+    val t : Future[Array[A]]= f.recoverWith {
+      case e =>
+        if (nbRetrials > 0)
+          paginationRecursion(nextPage, nbRetrials - 1, channel, nbRetrialsPerPage)
+        else throw e
+    }
+    t
+  }
+
   def listOntologies(): Future[VSDOntologies] = {
     val channel = authChannel ~> unmarshal[VSDOntologies]
-    channel(Options("https://www.virtualskeleton.ch/api/ontologies"))
+    channel(Options(s"$BASE_URL/ontologies"))
   }
 
   def listOntologyItemsForType(typ: Int, nbRetrialsPerPage: Int = 3): Future[Array[VSDOntologyItem]] = {
-    val channel = authChannel ~> unmarshal[VSDOntologyItemsListPerType]
-
-    def internalRecursion(nextPage: String, nbRetrials: Int): Future[Array[VSDOntologyItem]] = {
-      val f = channel(Get(nextPage)).flatMap { l =>
-        val currentPageList = l.items
-        if (l.nextPageUrl.isDefined) internalRecursion(l.nextPageUrl.get, nbRetrialsPerPage).map(nextPageList => currentPageList ++ nextPageList) else Future { currentPageList }
-      }
-
-      val t = f.recoverWith {
-        case e =>
-          if (nbRetrials > 0)
-            internalRecursion(nextPage, nbRetrials - 1)
-          else throw e
-      }
-      t
-    }
-    internalRecursion(s"https://www.virtualskeleton.ch/api/ontologies/${typ}/", nbRetrialsPerPage)
+    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDOntologyItem]]
+    paginationRecursion(s"$BASE_URL/ontologies/${typ}/", nbRetrialsPerPage,channel, nbRetrialsPerPage)
   }
 
-  
-  /**
-   * Boilerplate : need to make pagination handling generic
-  **/
-    
   def listUnpublishedObjects(nbRetrialsPerPage: Int = 3): Future[Array[VSDObjectInfo]] = {
-    val channel = authChannel ~> VSDConnect.printStep ~> unmarshal[VSDPaginatedListObjects]
-
-    def internalRecursion(nextPage: String, nbRetrials: Int): Future[Array[VSDObjectInfo]] = {
-      val f = channel(Get(nextPage)).flatMap { l =>
-        val currentPageList = l.items
-        if (l.nextPageUrl.isDefined) internalRecursion(l.nextPageUrl.get, nbRetrialsPerPage).map(nextPageList => currentPageList ++ nextPageList) else Future { currentPageList }
-      }
-      val t = f.recoverWith {
-        case e =>
-          if (nbRetrials > 0)
-            internalRecursion(nextPage, nbRetrials - 1)
-          else throw e
-      }
-      t
-    }
-    internalRecursion(s"https://www.virtualskeleton.ch/api/objects/unpublished/", nbRetrialsPerPage)
+    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDObjectInfo]]
+    paginationRecursion(s"$BASE_URL/objects/unpublished/", nbRetrialsPerPage,channel, nbRetrialsPerPage)
   }
 
   def getOntologyItemInfo(url: VSDURL): Future[VSDOntologyItem] = {
@@ -231,7 +173,7 @@ class VSDConnect private (user: String, password: String) {
     val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
     getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
       val newRelation = VSDObjectOntologyItem(1, 0, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
-      channel(Post(s"https://www.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}", newRelation))
+      channel(Post(s"$BASE_URL/object-ontologies/${ontologyItemInfo.`type`}", newRelation))
     }
   }
 
@@ -240,11 +182,9 @@ class VSDConnect private (user: String, password: String) {
     val position = objectInfo.ontologyItemRelations.map(_.size).getOrElse(0)
     getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
       val newRelation = VSDObjectOntologyItem(id, position, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
-      channel(Put(s"https://www.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}/${id}", newRelation))
+      channel(Put(s"$BASE_URL/object-ontologies/${ontologyItemInfo.`type`}/${id}", newRelation))
     }
   }
-
-
 
   //  def deleteVSDFile(id: VSDFileID) : Future[Try[HttpResponse]] = {
   //    val channel = authChannel ~> VSDConnect.printStep
@@ -257,7 +197,7 @@ class VSDConnect private (user: String, password: String) {
    * Download of object is always shipped in one zip file
    */
   def downloadVSDObject(id: VSDObjectID, downloadDir: File, fileName: String): Future[Try[File]] = {
-    downloadFile(VSDURL(s"https://www.virtualskeleton.ch/api/objects/${id.id}/download"), downloadDir, fileName)
+    downloadFile(VSDURL(s"$BASE_URL/objects/${id.id}/download"), downloadDir, fileName)
   }
 
   def shutdown(): Unit = {
@@ -268,17 +208,29 @@ class VSDConnect private (user: String, password: String) {
 }
 
 object VSDConnect {
-  def apply(username : String, password : String) : Try[VSDConnect] = {
+
+  private def connect(username : String, password : String, BASE_URL:String) : Try[VSDConnect] = {
     import system.dispatcher
-    val conn = new VSDConnect(username, password)
+    val conn = new VSDConnect(username, password, BASE_URL)
     implicit val system = conn.system
-    conn.authChannel(Get("https://www.virtualskeleton.ch/api/objects/unpublished/")).map { r =>
+    conn.authChannel(Get(s"$BASE_URL/objects/unpublished/")).map { r =>
       if (r.status.isSuccess) {
         Success(conn)
       } else {
+        println(r)
         Failure(new Exception("Login unsuccessful"))
       }
     }.await
+  }
+
+  def apply(username : String, password : String) : Try[VSDConnect] = {
+    val BASE_URL = "https://www.virtualskeleton.ch/api"
+    connect(username, password , BASE_URL)
+  }
+
+  def demo(username : String, password : String) : Try[VSDConnect] = {
+    val BASE_URL = "https://demo.virtualskeleton.ch/api"
+    connect(username, password , BASE_URL)
   }
 
 

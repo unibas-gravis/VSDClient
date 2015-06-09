@@ -20,10 +20,7 @@ case class VSDOntology(key : Int, value : String)
 case class VSDOntologies(types : Array[VSDOntology])
 case class VSDOntologyItem(id : Int, term:String, `type`: Int, selfUrl : String)
 case class VSDObjectOntologyItem(id : Int, position: Int, `type` : Int, `object` : VSDURL, ontologyItem: VSDURL, selfUrl :String)
-case class VSDOntologyItemsListPerType(totalCount : Int, pagination : VSDPagination, items: Array[VSDOntologyItem],  nextPageUrl: Option[String]) 
-case class VSDPaginatedListObjects(totalCount : Int, pagination : VSDPagination, items: Array[VSDObjectInfo],  nextPageUrl: Option[String]) 
-
-
+case class VSDPaginatedList[A]( val totalCount : Int , val pagination : VSDPagination, val items: Array[A], val nextPageUrl: Option[String] )
 
 object VSDJson {
 
@@ -32,7 +29,7 @@ object VSDJson {
    * JSON (de)serializers if needed
    */
   
-  	implicit val VSDURLProtocol = jsonFormat1(VSDURL.apply)
+  implicit val VSDURLProtocol = jsonFormat1(VSDURL.apply)
 	implicit val VSDObjectIdProtocol = jsonFormat1(VSDObjectID.apply)
 	implicit val VSDFileIdProtocol = jsonFormat1(VSDFileID.apply)
 	implicit val FileUploadResponseFormat = jsonFormat2(FileUploadResponse.apply)
@@ -41,9 +38,8 @@ object VSDJson {
 	implicit val VSDOntologiesProtocol = jsonFormat1(VSDOntologies)
 	implicit val VSDOntologyItemProtocol = jsonFormat4(VSDOntologyItem)
 	implicit val VSDPaginationProtocol = jsonFormat2(VSDPagination)
-	implicit val VSDOntologyItemsListPerTypeProtocol = jsonFormat4(VSDOntologyItemsListPerType)
+	implicit val VSDOntologyItemsListPerTypeProtocol = jsonFormat4(VSDPaginatedList[VSDOntologyItem])
 	implicit val VSDObjectOntologyItemProtocol = jsonFormat6(VSDObjectOntologyItem)
-	implicit val VSDPaginatedListObjectsProtocol = jsonFormat4(VSDPaginatedListObjects)
-	
-	
+  implicit val VSDPaginatedListObjectsProtocol = jsonFormat4(VSDPaginatedList[VSDObjectInfo])
+
 }
