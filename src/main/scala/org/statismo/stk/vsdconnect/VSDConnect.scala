@@ -62,17 +62,17 @@ import spray.httpx.unmarshalling.FromResponseUnmarshaller
  * Simple upload of files based on Basic authentication
  */
 
-class VSDConnect(user: String, password: String) {
+class VSDConnect private (user: String, password: String) {
 
   implicit val system = ActorSystem(s"VSDConnect-user-${user.replace("@", "-").replace(".", "-")}")
   import system.dispatcher
 
-  val UPLOAD_URL = "https://demo.virtualskeleton.ch/api/upload/"
-  val FILEBASE_URL = "https://demo.virtualskeleton.ch/api/files/"
+  val UPLOAD_URL = "https://www.virtualskeleton.ch/api/upload/"
+  val FILEBASE_URL = "https://www.virtualskeleton.ch/api/files/"
 
   val log = Logging(system, getClass)
   val authChannel =  addCredentials(BasicHttpCredentials(user, password)) ~> sendReceive
- 
+
   /**
    * This function returns the generated VSD file id or an exception in case the send failed
    */
@@ -153,17 +153,17 @@ class VSDConnect(user: String, password: String) {
    * This method downloads a file from the VSD given its file ID
    */
   def downloadFile(id: VSDFileID, downloadDir: File, fileName: String): Future[Try[File]] = {
-    downloadFile(VSDURL(s"https://demo.virtualskeleton.ch/api/files/${id.id}/download"), downloadDir, fileName)
+    downloadFile(VSDURL(s"https://www.virtualskeleton.ch/api/files/${id.id}/download"), downloadDir, fileName)
   }
 
   def getVSDObjectInfo(id: VSDObjectID) = {
     val pipe = authChannel ~> unmarshal[VSDObjectInfo]
-    pipe(Get(s"https://demo.virtualskeleton.ch/api/objects/${id.id}"))
+    pipe(Get(s"https://www.virtualskeleton.ch/api/objects/${id.id}"))
   }
 
   def updateVSDObjectInfo(info: VSDObjectInfo, nbRetrials: Int = 0): Future[Try[HttpResponse]] = {
 
-    val resp = authChannel(Put(s"https://demo.virtualskeleton.ch/api/objects/${info.id}", info)).map { s => Success(s) }
+    val resp = authChannel(Put(s"https://www.virtualskeleton.ch/api/objects/${info.id}", info)).map { s => Success(s) }
     resp.recoverWith {
       case e =>
         if (nbRetrials > 0) {
@@ -175,7 +175,7 @@ class VSDConnect(user: String, password: String) {
 
   def listOntologies(): Future[VSDOntologies] = {
     val channel = authChannel ~> unmarshal[VSDOntologies]
-    channel(Options("https://demo.virtualskeleton.ch/api/ontologies"))
+    channel(Options("https://www.virtualskeleton.ch/api/ontologies"))
   }
 
   def listOntologyItemsForType(typ: Int, nbRetrialsPerPage: Int = 3): Future[Array[VSDOntologyItem]] = {
@@ -195,7 +195,7 @@ class VSDConnect(user: String, password: String) {
       }
       t
     }
-    internalRecursion(s"https://demo.virtualskeleton.ch/api/ontologies/${typ}/", nbRetrialsPerPage)
+    internalRecursion(s"https://www.virtualskeleton.ch/api/ontologies/${typ}/", nbRetrialsPerPage)
   }
 
   
@@ -219,7 +219,7 @@ class VSDConnect(user: String, password: String) {
       }
       t
     }
-    internalRecursion(s"https://demo.virtualskeleton.ch/api/objects/unpublished/", nbRetrialsPerPage)
+    internalRecursion(s"https://www.virtualskeleton.ch/api/objects/unpublished/", nbRetrialsPerPage)
   }
 
   def getOntologyItemInfo(url: VSDURL): Future[VSDOntologyItem] = {
@@ -231,7 +231,7 @@ class VSDConnect(user: String, password: String) {
     val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
     getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
       val newRelation = VSDObjectOntologyItem(1, 0, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
-      channel(Post(s"https://demo.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}", newRelation))
+      channel(Post(s"https://www.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}", newRelation))
     }
   }
 
@@ -240,7 +240,7 @@ class VSDConnect(user: String, password: String) {
     val position = objectInfo.ontologyItemRelations.map(_.size).getOrElse(0)
     getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
       val newRelation = VSDObjectOntologyItem(id, position, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
-      channel(Put(s"https://demo.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}/${id}", newRelation))
+      channel(Put(s"https://www.virtualskeleton.ch/api/object-ontologies/${ontologyItemInfo.`type`}/${id}", newRelation))
     }
   }
 
@@ -248,7 +248,7 @@ class VSDConnect(user: String, password: String) {
 
   //  def deleteVSDFile(id: VSDFileID) : Future[Try[HttpResponse]] = {
   //    val channel = authChannel ~> VSDConnect.printStep
-  //    channel(Delete(s"https://demo.virtualskeleton.ch/api/files/${id.id}")).map {r => 
+  //    channel(Delete(s"https://www.virtualskeleton.ch/api/files/${id.id}")).map {r =>
   //    	if(r.status.intValue == 204) Success(r) else Failure(new Exception(s"failed to delete vsd file id ${id}"+ r.entity.toString()))
   //    }
   //  } 
@@ -257,7 +257,7 @@ class VSDConnect(user: String, password: String) {
    * Download of object is always shipped in one zip file
    */
   def downloadVSDObject(id: VSDObjectID, downloadDir: File, fileName: String): Future[Try[File]] = {
-    downloadFile(VSDURL(s"https://demo.virtualskeleton.ch/api/objects/${id.id}/download"), downloadDir, fileName)
+    downloadFile(VSDURL(s"https://www.virtualskeleton.ch/api/objects/${id.id}/download"), downloadDir, fileName)
   }
 
   def shutdown(): Unit = {
@@ -268,6 +268,20 @@ class VSDConnect(user: String, password: String) {
 }
 
 object VSDConnect {
+  def apply(username : String, password : String) : Try[VSDConnect] = {
+    import system.dispatcher
+    val conn = new VSDConnect(username, password)
+    implicit val system = conn.system
+    conn.authChannel(Get("https://www.virtualskeleton.ch/api/objects/unpublished/")).map { r =>
+      if (r.status.isSuccess) {
+        Success(conn)
+      } else {
+        Failure(new Exception("Login unsuccessful"))
+      }
+    }.await
+  }
+
+
   def printStep(resp: HttpResponse): HttpResponse = {
     println("*** Response : " + resp.entity.asString)
     resp

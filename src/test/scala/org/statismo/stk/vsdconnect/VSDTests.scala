@@ -20,7 +20,7 @@ import org.scalatest.time.Minutes
 
 class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
-  val vsd = new VSDConnect("demo@virtualskeleton.ch", "demo" /*, true*/ )
+  val vsd = VSDConnect("demo@virtualskeleton.ch", "demo" /*, true*/ ).get
 
   implicit val system = vsd.system.dispatcher
 
