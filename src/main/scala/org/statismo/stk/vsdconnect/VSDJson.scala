@@ -5,9 +5,10 @@ import DefaultJsonProtocol._
 
 case class VSDObjectID(id: Int) 
 case class VSDFileID(id: Int)
-
+case class VSDFolderID(id: Int)
 case class VSDURL(selfUrl : String)
-case class FileUploadResponse(file : VSDURL, relatedObject : VSDURL)    
+
+case class FileUploadResponse(file : VSDURL, relatedObject : VSDURL)
 
 case class VSDObjectInfo (sliceThickness: Option[Float], spaceBetweenSlices:Option[Float], kilovoltPeak: Option[Float], 
     modality:Option[VSDURL], id:Int, createdDate:String, description:Option[String], ontologyCount:Option[Int], `type`:Option[Int],
@@ -20,7 +21,8 @@ case class VSDOntology(key : Int, value : String)
 case class VSDOntologies(types : Array[VSDOntology])
 case class VSDOntologyItem(id : Int, term:String, `type`: Int, selfUrl : String)
 case class VSDObjectOntologyItem(id : Int, position: Int, `type` : Int, `object` : VSDURL, ontologyItem: VSDURL, selfUrl :String)
-case class VSDPaginatedList[A]( val totalCount : Int , val pagination : VSDPagination, val items: Array[A], val nextPageUrl: Option[String] )
+case class VSDPaginatedList[A](totalCount : Int , pagination : VSDPagination, items: Array[A],  nextPageUrl: Option[String])
+case class VSDFolder(id: Int, name: String, level: Int, parentFolder : Option[VSDURL], childFolders:Option[Seq[VSDURL]], containedObjects:Option[Seq[VSDURL]], folderGroupRights:Option[Seq[VSDURL]], folderUserRights:Option[Seq[VSDURL]], selfUrl :String)
 
 object VSDJson {
 
@@ -41,5 +43,6 @@ object VSDJson {
 	implicit val VSDOntologyItemsListPerTypeProtocol = jsonFormat4(VSDPaginatedList[VSDOntologyItem])
 	implicit val VSDObjectOntologyItemProtocol = jsonFormat6(VSDObjectOntologyItem)
   implicit val VSDPaginatedListObjectsProtocol = jsonFormat4(VSDPaginatedList[VSDObjectInfo])
-
+  implicit val VSDFolderProtocol = jsonFormat9(VSDFolder)
+  implicit val VSDPaginatedFolderProtocol = jsonFormat4(VSDPaginatedList[VSDFolder])
 }

@@ -181,7 +181,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val readyToClean = scala.concurrent.promise[Boolean]
+    val readyToCleanObject = scala.concurrent.promise[Boolean]
+    val readyToCleanFolder = scala.concurrent.promise[Boolean]
 
     it("can update an object ontology relation") {
       val ontoItem = Await.result(ontologyItem2.future, Duration(1, MINUTES))
@@ -201,25 +202,74 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       println("checking that uploaded object appears in list")
       val unpublishedF = vsd.listUnpublishedObjects(3)       
       val t = unpublishedF.map(l => l.map(_.id).contains (info.id))
-      whenReady(t, timeout(Span(1, Minutes))) { v =>
+      whenReady(t, timeout(Span(1, Minutes))) { v =>  assert(v)   }
+    }
 
-        readyToClean.complete(Success(true))
+    val myDatafolder = scala.concurrent.promise[VSDFolder]
 
-        assert(v)
+    it("can list available folders") {
+      val dirs = vsd.listFolders()
+      whenReady(dirs, timeout(Span(1, Minutes))) { r =>
+        assert(r.size > 0)
+        r.find(i => i.level==1 && i.name == "MyProjects").map { myDatafolder.success(_) }
       }
+    }
 
+    val myCreatedfolder = scala.concurrent.promise[VSDFolder]
+
+    it("can create a folder") {
+      println("creating folder")
+      val parentFolder = Await.result(myDatafolder.future, Duration(1, MINUTES))
+      val folderInfo = vsd.createFolder("unitTestFolder", parentFolder)
+      whenReady(folderInfo, timeout(Span(1, Minutes))) { i =>
+        assert(i.name === "unitTestFolder")
+        myCreatedfolder.success(i)
+      }
+    }
+
+    it("can retrieve correct info given a folder id") {
+      val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
+      val queriedInfo = vsd.getFolderInfo(VSDFolderID(createdInfo.id))
+      whenReady(queriedInfo, timeout(Span(1, Minutes))) { i =>
+        assert(i.selfUrl === createdInfo.selfUrl && i.name ==="unitTestFolder")
+      }
+    }
+
+    it("can add an object to a folder") {
+      val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
+      val info = Await.result(objInfo.future, Duration(1, MINUTES))
+
+      val u = vsd.addObjectToFolder(info, createdInfo)
+      whenReady(u, timeout(Span(1, Minutes))) { f =>
+        assert(f.containedObjects.get.contains(VSDURL(info.selfUrl)))
+        readyToCleanObject.complete(Success(true))
+      }
     }
 
     it("can delete an unpublished VSD object") {
       val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
       // Wait until all other tests finished
-      Await.result(readyToClean.future, Duration(6, MINUTES))
+      Await.result(readyToCleanObject.future, Duration(6, MINUTES))
 
       val d = vsd.deleteUnpublishedVSDObject(objId)
       whenReady(d, timeout(Span(1, Minutes))) { r =>
         assert(r.isSuccess)
+        readyToCleanFolder.success(true)
       }
     }
+
+    it("can delete an empty folder") {
+      val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
+      Await.result(readyToCleanFolder.future, Duration(6, MINUTES))
+
+      val deletion = vsd.deleteFolder(VSDFolderID(createdInfo.id))
+      whenReady(deletion, timeout(Span(1, Minutes))) { r => assert(r.isSuccess) }
+    }
+
+
+
+
+
 
   }
 

@@ -117,7 +117,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     downloadFile(VSDURL(s"$BASE_URL/files/${id.id}/download"), downloadDir, fileName)
   }
 
-  def getVSDObjectInfo(id: VSDObjectID) = {
+  def getVSDObjectInfo(id: VSDObjectID) : Future[VSDObjectInfo] = {
     val pipe = authChannel ~> unmarshal[VSDObjectInfo]
     pipe(Get(s"$BASE_URL/objects/${id.id}"))
   }
@@ -187,7 +187,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   }
 
   def deleteUnpublishedVSDObject(id: VSDObjectID): Future[Try[HttpResponse]] = {
-    val channel = authChannel ~> VSDConnect.printStep
+    val channel = authChannel
     channel(Delete(s"$BASE_URL/objects/${id.id}")).map { r =>
       if (r.status.isSuccess) Success(r) else Failure(new Exception(s"failed to delete unpublished vsd object id ${id}" + r.entity.toString()))
     }
@@ -200,6 +200,80 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     downloadFile(VSDURL(s"$BASE_URL/objects/${id.id}/download"), downloadDir, fileName)
   }
 
+
+    /**
+     * Lists folders
+     *
+     */
+  def listFolders(nbRetrialsPerPage: Int = 3):  Future[Array[VSDFolder]] = {
+    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDFolder]]
+      paginationRecursion(s"$BASE_URL/folders", nbRetrialsPerPage, channel, nbRetrialsPerPage)
+    }
+
+
+  /**
+   * Gets information given a folder id
+   */
+  def getFolderInfo(id: VSDFolderID): Future[VSDFolder] = {
+    val channel = authChannel ~> unmarshal[VSDFolder]
+    channel(Get(s"$BASE_URL/folders/${id.id}"))
+  }
+
+
+  /**
+   * creates a folder with the given name and a parent folder on the VSD
+   *
+   */
+  def createFolder(name: String, parentFolder: VSDFolder) : Future[VSDFolder] = {
+    val channel = authChannel ~> unmarshal[VSDFolder]
+    val folderModel =  VSDFolder(1, name, parentFolder.level + 1, Some(VSDURL(parentFolder.selfUrl)), None, None, None, None, "dummy")
+    channel(Post(s"$BASE_URL/folders",folderModel))
+  }
+
+  /**
+   * creates a folder with the given name and parent folder ID on the VSD
+   *
+   */
+  def createFolder(name: String, parentFolderId: VSDFolderID)  : Future[VSDFolder] = {
+    val channel = authChannel ~> unmarshal[VSDFolder]
+    for {
+      parentFolder <- getFolderInfo(parentFolderId)
+      res <- createFolder(name: String, parentFolder)
+    } yield { res }
+  }
+
+
+  /**
+   * deletes a folder with the given name and parent folder ID on the VSD
+   *
+   */
+  def deleteFolder(id: VSDFolderID)  : Future[Try[HttpResponse]] = {
+    val channel = authChannel
+    channel(Delete(s"$BASE_URL/folders/${id.id}")).map { r =>
+      if (r.status.isSuccess) Success(r) else Failure(new Exception(s"failed to delete directory with id ${id}" + r.entity.toString()))
+    }
+  }
+
+
+  /**
+   * Adds a VSD object to an existing folder
+   */
+  def addObjectToFolder(obj : VSDObjectInfo, folder: VSDFolder) : Future[VSDFolder] = {
+    val channel = authChannel ~> VSDConnect.printStep ~> unmarshal[VSDFolder]
+    val folderModel =  folder.copy(containedObjects = folder.containedObjects.map(l => l :+ VSDURL(obj.selfUrl)))
+    channel(Put(s"$BASE_URL/folders",folderModel))
+  }
+
+  /**
+   * removes a VSD object from an existing folder
+   */
+  def removeObjectFromFolder(obj : VSDObjectInfo, folder: VSDFolder) = {
+    val channel = authChannel ~> VSDConnect.printStep ~> unmarshal[VSDFolder]
+    val folderModel =  folder.copy(containedObjects = folder.containedObjects.filterNot(l => l == VSDURL(obj.selfUrl)))
+    channel(Put(s"$BASE_URL/folders",folderModel))
+  }
+
+
   def shutdown(): Unit = {
     IO(Http).ask(Http.CloseAll)(1.second).await
     system.shutdown()
@@ -209,7 +283,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
 
 object VSDConnect {
 
-  private def connect(username : String, password : String, BASE_URL:String) : Try[VSDConnect] = {
+  private def connect(username: String, password: String, BASE_URL: String): Try[VSDConnect] = {
     import system.dispatcher
     val conn = new VSDConnect(username, password, BASE_URL)
     implicit val system = conn.system
