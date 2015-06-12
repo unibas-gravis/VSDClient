@@ -7,6 +7,7 @@ case class VSDObjectID(id: Int)
 case class VSDFileID(id: Int)
 case class VSDFolderID(id: Int)
 case class VSDURL(selfUrl : String)
+case class VSDUserID(id: Int)
 
 case class FileUploadResponse(file : VSDURL, relatedObject : VSDURL)
 
@@ -16,6 +17,7 @@ case class VSDObjectInfo (sliceThickness: Option[Float], spaceBetweenSlices:Opti
     ontologyItems:Option[ Seq[VSDURL]],  ontologyItemRelations:Option[ Seq[VSDURL]], selfUrl:String
 )
 
+case class VSDUser(id : Int, username: String, selfUrl : String)
 case class VSDPagination(rpp : Int, page:Int)
 case class VSDOntology(key : Int, value : String)
 case class VSDOntologies(types : Array[VSDOntology])
@@ -45,4 +47,5 @@ object VSDJson {
   implicit val VSDPaginatedListObjectsProtocol = jsonFormat4(VSDPaginatedList[VSDObjectInfo])
   implicit val VSDFolderProtocol = jsonFormat9(VSDFolder)
   implicit val VSDPaginatedFolderProtocol = jsonFormat4(VSDPaginatedList[VSDFolder])
+  implicit val VSDUserProtocol = jsonFormat3(VSDUser)
 }

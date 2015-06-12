@@ -21,7 +21,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
-
+import org.apache.commons.io.FileUtils
 /**
  * Simple upload of files based on Basic authentication
  */
@@ -96,7 +96,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    * This method downloads a file from the VSD given its downloadURL
    */
   def downloadFile(url: VSDURL, downloadDir: File, fileName: String): Future[Try[File]] = {
-    require(downloadDir.isDirectory)
+    if(!downloadDir.isDirectory) return Future.failed(new Exception("indicated destination directory is not a directory."))
     authChannel(Get(url.selfUrl)).map { r =>
       if (r.status.isSuccess) {
         val file = new File(downloadDir.getAbsolutePath(), fileName)
@@ -162,6 +162,15 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   def listUnpublishedObjects(nbRetrialsPerPage: Int = 3): Future[Array[VSDObjectInfo]] = {
     val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDObjectInfo]]
     paginationRecursion(s"$BASE_URL/objects/unpublished/", nbRetrialsPerPage,channel, nbRetrialsPerPage)
+  }
+
+  /**
+   * returns the list of already validated objects
+   *
+   */
+  def listPublishedObjects(nbRetrialsPerPage: Int = 3) : Future[Array[VSDObjectInfo]] = {
+    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDObjectInfo]]
+    paginationRecursion(s"$BASE_URL/objects/published/", nbRetrialsPerPage,channel, nbRetrialsPerPage)
   }
 
   def getOntologyItemInfo(url: VSDURL): Future[VSDOntologyItem] = {
@@ -259,20 +268,76 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    * Adds a VSD object to an existing folder
    */
   def addObjectToFolder(obj : VSDObjectInfo, folder: VSDFolder) : Future[VSDFolder] = {
-    val channel = authChannel ~> VSDConnect.printStep ~> unmarshal[VSDFolder]
-    val folderModel =  folder.copy(containedObjects = folder.containedObjects.map(l => l :+ VSDURL(obj.selfUrl)))
+    val channel = authChannel ~> unmarshal[VSDFolder]
+    val folderModel =  folder.copy(containedObjects = Some(folder.containedObjects.getOrElse(Seq[VSDURL]()) :+ VSDURL(obj.selfUrl)))
     channel(Put(s"$BASE_URL/folders",folderModel))
   }
+
 
   /**
    * removes a VSD object from an existing folder
    */
   def removeObjectFromFolder(obj : VSDObjectInfo, folder: VSDFolder) = {
-    val channel = authChannel ~> VSDConnect.printStep ~> unmarshal[VSDFolder]
-    val folderModel =  folder.copy(containedObjects = folder.containedObjects.filterNot(l => l == VSDURL(obj.selfUrl)))
+    val channel = authChannel ~> unmarshal[VSDFolder]
+    val r =  folder.containedObjects.getOrElse(Seq[VSDURL]()).filterNot(l => l == VSDURL(obj.selfUrl))
+    val folderModel =  folder.copy(containedObjects = if (r.isEmpty) None else Some(r))
     channel(Put(s"$BASE_URL/folders",folderModel))
   }
 
+
+  /**
+   * Downloads the content of the folder to the indicated File destination.If the destination folder already exists in the file system, the function will abort.
+   * In case the VSD folder contains subfolders, this call will result in a recursion
+   * On success,returns the list of downloaded VSDObjectIDs along with their corresponding File.
+   *
+   * The downloaded files are first stored in a temporary directory, and only on success of all files moved to the indicated destination.
+   * */
+  def downloadFolder(folder: VSDFolder, destination : File) : Future[Seq[(VSDObjectInfo, File)]]= {
+    val infoChannel = authChannel ~> unmarshal[VSDFolder]
+    val objInfoChannel = authChannel ~> unmarshal[VSDObjectInfo]
+
+    if(destination.isDirectory()) return Future.failed(new Exception("Indicated folder already exists"))
+
+    val tempDestination = File.createTempFile("VSDFolder_"+folder.id,"")
+    tempDestination.delete() ; tempDestination.mkdir()
+
+    // If any subdirectories, we recurse first
+    val downloadedObjsInSubdirsF = Future.sequence(folder.childFolders.getOrElse(Seq[VSDURL]()).map{ sub =>
+      for {
+        info <- infoChannel(Get(sub.selfUrl))
+        subFolderList <- downloadFolder(info, new File(tempDestination.getAbsolutePath + File.pathSeparator + info.name))
+      } yield (subFolderList)
+    }).map(_.flatten)
+
+    // now download the objects contained in the file itself
+    val downloadedObjsInFolderF = Future.sequence(folder.containedObjects.getOrElse(Seq[VSDURL]()).map { objURL =>
+      for {
+        info <- objInfoChannel(Get(objURL.selfUrl))
+        dl <- downloadVSDObject(VSDObjectID(info.id), tempDestination, s"VSD_${info.id}").map(_.get)
+      } yield ((info, dl))
+    })
+
+    for {
+      downloadedObjsInSubdirs <- downloadedObjsInSubdirsF
+      downloadedObjsInFolder <- downloadedObjsInFolderF
+    } yield {
+        val r = downloadedObjsInSubdirs ++ downloadedObjsInFolder
+        // copy the temp dir into destination
+        destination.delete()
+        FileUtils.moveDirectory(tempDestination, destination)
+        // replace the file paths with the new one
+        r.map { case (o, f) => (o, new File(f.getAbsolutePath.replace(tempDestination.getAbsolutePath, destination.getAbsolutePath))) }
+      }
+  }
+
+
+  /**
+   * Gets user information
+   */
+  def getUserInfo(id: VSDUserID) : Future[VSDUser]= {
+    val channel = authChannel ~>  unmarshal[VSDUser]
+    channel(Get(s"$BASE_URL/users/${id.id}"))
+  }
 
   def shutdown(): Unit = {
     IO(Http).ask(Http.CloseAll)(1.second).await

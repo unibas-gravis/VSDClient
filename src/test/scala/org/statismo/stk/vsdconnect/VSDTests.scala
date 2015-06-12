@@ -126,6 +126,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
       whenReady(f, timeout(Span(1, Minutes))) { s =>
         assert(s.sliceThickness.get === 0.67f)
+        assert(s.sliceThickness.get === 0.67f)
         assert(s.description.get === newDescription)
       }
     }
@@ -205,6 +206,13 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       whenReady(t, timeout(Span(1, Minutes))) { v =>  assert(v)   }
     }
 
+
+    it("can list published objects") {
+      val l = vsd.listPublishedObjects()
+      whenReady(l, timeout(Span(1, Minutes))) { v =>   assert(v.size > 0) }
+    }
+
+
     val myDatafolder = scala.concurrent.promise[VSDFolder]
 
     it("can list available folders") {
@@ -235,6 +243,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
+    val addedToFolder = scala.concurrent.promise[VSDFolder]
+
     it("can add an object to a folder") {
       val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
       val info = Await.result(objInfo.future, Duration(1, MINUTES))
@@ -242,14 +252,46 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val u = vsd.addObjectToFolder(info, createdInfo)
       whenReady(u, timeout(Span(1, Minutes))) { f =>
         assert(f.containedObjects.get.contains(VSDURL(info.selfUrl)))
+        addedToFolder.success(f)
+      }
+    }
+
+    it("can download the content of a folder") {
+      val folderInf = Await.result(addedToFolder.future, Duration(1, MINUTES))
+      val info = Await.result(objInfo.future, Duration(1, MINUTES))
+
+      val dest = File.createTempFile("UnitTestVSDFolder_" + folderInf.id, "")
+      val r = vsd.downloadFolder(folderInf, dest)
+
+      whenReady(r, timeout(Span(4, Minutes))) { f =>
+        assert(f(0)._1.id === info.id)
+        val fil = new File(f(0)._2.getAbsolutePath)
+        assert(fil.exists())
+      }
+    }
+
+
+    it("can remove an object from a folder") {
+      val addedInfo = Await.result(addedToFolder.future, Duration(1, MINUTES))
+      val info = Await.result(objInfo.future, Duration(1, MINUTES))
+
+      val u = vsd.removeObjectFromFolder(info, addedInfo)
+      whenReady(u, timeout(Span(1, Minutes))) { f =>
+        assert(f.containedObjects.getOrElse(Seq[VSDURL]()).find(_ == VSDURL(info.selfUrl)) isEmpty)
         readyToCleanObject.complete(Success(true))
       }
+    }
+
+
+    it("can retrieve user info") {
+      val userInfo = vsd.getUserInfo(VSDUserID(1))
+      whenReady(userInfo, timeout(Span(1, Minutes))) { i => assert(i.username == "system") }
     }
 
     it("can delete an unpublished VSD object") {
       val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
       // Wait until all other tests finished
-      Await.result(readyToCleanObject.future, Duration(6, MINUTES))
+      //Await.result(readyToCleanObject.future, Duration(6, MINUTES))
 
       val d = vsd.deleteUnpublishedVSDObject(objId)
       whenReady(d, timeout(Span(1, Minutes))) { r =>
@@ -260,11 +302,13 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
     it("can delete an empty folder") {
       val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
-      Await.result(readyToCleanFolder.future, Duration(6, MINUTES))
+    //  Await.result(readyToCleanFolder.future, Duration(6, MINUTES))
 
       val deletion = vsd.deleteFolder(VSDFolderID(createdInfo.id))
       whenReady(deletion, timeout(Span(1, Minutes))) { r => assert(r.isSuccess) }
     }
+
+
 
 
 
