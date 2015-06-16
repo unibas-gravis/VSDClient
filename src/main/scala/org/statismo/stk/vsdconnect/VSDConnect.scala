@@ -44,7 +44,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     val req = Post(s"$BASE_URL/upload/", MultipartFormData(Seq(
       BodyPart(
         HttpEntity(ContentType(MediaTypes.`multipart/form-data`), bArray),
-        HttpHeaders.`Content-Disposition`("form-data", Map("filename" -> (f.getName + ".dcm"))) :: Nil))))
+        HttpHeaders.`Content-Disposition`("form-data", Map("filename" -> (f.getName /*+ ".dcm"*/))) :: Nil))))
 
     val t = pipe(req) map { r =>
 
@@ -344,7 +344,49 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     system.shutdown()
   }
 
-}
+
+    /**
+     *  add a link between 2 VSD objects
+     **/
+  def addLink(object1 : VSDURL, object2 : VSDURL) : Future[VSDLink] = {
+      val channel = authChannel ~> unmarshal[VSDLink]
+      val l = VSDLink(0, "dummy", object1, object2, "dummy")
+      channel(Post(s"$BASE_URL/object-links", l))
+   }
+
+
+  /**
+   * get link information
+   **/
+  def getLinkInfo(url : VSDURL) : Future[VSDLink] = {
+    val channel = authChannel ~> unmarshal[VSDLink] ; channel(Get(url.selfUrl))
+  }
+
+  /**
+   * get link information
+   **/
+  def getLinkInfo(id : VSDLinkID) : Future[VSDLink] = {
+    val channel = authChannel ~> unmarshal[VSDLink] ; channel(Get(s"$BASE_URL/object-links/${id.id}"))
+  }
+
+
+  /**
+    * Lists modalities supported by the VSD
+    */
+  def listModalities() : Future[Array[VSDModality]] = {
+    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDModality]]
+    paginationRecursion(s"$BASE_URL/modalities", 3, channel, 3)
+  }
+
+  /**
+    * Lists supported segmentation method
+    */
+  def listSegmentationMethods() = {
+    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDSegmentationMethod]]
+    paginationRecursion(s"$BASE_URL/segmentation_methods", 3, channel, 3)
+  }
+
+ }
 
 object VSDConnect {
 

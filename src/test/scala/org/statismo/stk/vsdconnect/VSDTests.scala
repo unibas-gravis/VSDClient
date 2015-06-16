@@ -14,9 +14,7 @@ import org.scalatest._
 import matchers.ShouldMatchers._
 import java.util.concurrent._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.Span
-import org.scalatest.time.Seconds
-import org.scalatest.time.Minutes
+import org.scalatest.time.{Span, Seconds, Minutes}
 
 class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
@@ -57,7 +55,6 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
           case f: Failure[_] => fail("*** Download failed " + f.exception)
         }
       }
-
     }
 
     val uploadedObject = scala.concurrent.promise[VSDObjectID]
@@ -278,7 +275,6 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val u = vsd.removeObjectFromFolder(info, addedInfo)
       whenReady(u, timeout(Span(1, Minutes))) { f =>
         assert(f.containedObjects.getOrElse(Seq[VSDURL]()).find(_ == VSDURL(info.selfUrl)) isEmpty)
-        readyToCleanObject.complete(Success(true))
       }
     }
 
@@ -288,31 +284,78 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       whenReady(userInfo, timeout(Span(1, Minutes))) { i => assert(i.username == "system") }
     }
 
-    it("can delete an unpublished VSD object") {
-      val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
-      // Wait until all other tests finished
-      //Await.result(readyToCleanObject.future, Duration(6, MINUTES))
+    val object2P = scala.concurrent.promise[VSDObjectID]
 
-      val d = vsd.deleteUnpublishedVSDObject(objId)
+    it("can upload a nifti segmentation") {
+      val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
+      val path = getClass().getResource("/volume.nii").getPath
+      val idObj2F = vsd.sendFile(new File(path), 20).map { t => t.get._2}
+      whenReady(idObj2F, timeout(Span(2, Minutes))) { idObj2 =>
+        assert(idObj2.id > obj1Info.id)
+        object2P.success(idObj2)
+      }
+    }
+
+    it("can link 2 objects") {
+      // first upload a second object
+      val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
+      val obj2Id = Await.result(object2P.future, Duration(3, MINUTES))
+
+      val fut = for {
+        obj2Info <- vsd.getVSDObjectInfo(obj2Id)
+        link <- vsd.addLink(VSDURL(obj2Info.selfUrl), VSDURL(obj1Info.selfUrl))
+        lookedUpLink <- vsd.getLinkInfo(VSDLinkID(link.id))
+      } yield {(lookedUpLink,obj2Info)}
+
+      whenReady(fut, timeout(Span(4, Minutes))) { case (link, obj2) =>
+        assert(link.object1.selfUrl == obj2.selfUrl  && link.object2.selfUrl == obj1Info.selfUrl)
+        readyToCleanObject.complete(Success(true))
+      }
+    }
+
+
+
+    it("can list the modalities on the VSD") {
+      val modalitiesF = vsd.listModalities()
+      whenReady(modalitiesF, timeout(Span(1, Minutes))) { modalities =>
+         assert(modalities.find(_.name == "CT").isDefined)
+      }
+    }
+
+    it("can list the segmentation methods supported by the VSD") {
+      val segMethsF = vsd.listSegmentationMethods()
+      whenReady(segMethsF, timeout(Span(1, Minutes))) { segMethods =>
+        assert(segMethods.find(_.name == "Manual").isDefined)
+      }
+    }
+
+
+
+    it("can delete unpublished VSD objects") {
+      val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
+      val obj2Id = Await.result(object2P.future, Duration(5, MINUTES))
+      // Wait until all other tests finished
+      Await.result(readyToCleanObject.future, Duration(6, MINUTES))
+
+      val d = for {
+        a <- vsd.deleteUnpublishedVSDObject(objId)
+        b <- vsd.deleteUnpublishedVSDObject(obj2Id)
+      } yield b
+
       whenReady(d, timeout(Span(1, Minutes))) { r =>
         assert(r.isSuccess)
         readyToCleanFolder.success(true)
       }
     }
 
+
     it("can delete an empty folder") {
       val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
-    //  Await.result(readyToCleanFolder.future, Duration(6, MINUTES))
+      //  Await.result(readyToCleanFolder.future, Duration(6, MINUTES))
 
       val deletion = vsd.deleteFolder(VSDFolderID(createdInfo.id))
       whenReady(deletion, timeout(Span(1, Minutes))) { r => assert(r.isSuccess) }
     }
-
-
-
-
-
-
 
 
   }

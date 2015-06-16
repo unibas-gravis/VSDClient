@@ -8,6 +8,7 @@ case class VSDFileID(id: Int)
 case class VSDFolderID(id: Int)
 case class VSDURL(selfUrl : String)
 case class VSDUserID(id: Int)
+case class VSDLinkID(id: Int)
 
 case class FileUploadResponse(file : VSDURL, relatedObject : VSDURL)
 
@@ -25,6 +26,9 @@ case class VSDOntologyItem(id : Int, term:String, `type`: Int, selfUrl : String)
 case class VSDObjectOntologyItem(id : Int, position: Int, `type` : Int, `object` : VSDURL, ontologyItem: VSDURL, selfUrl :String)
 case class VSDPaginatedList[A](totalCount : Int , pagination : VSDPagination, items: Array[A],  nextPageUrl: Option[String])
 case class VSDFolder(id: Int, name: String, level: Int, parentFolder : Option[VSDURL], childFolders:Option[Seq[VSDURL]], containedObjects:Option[Seq[VSDURL]], folderGroupRights:Option[Seq[VSDURL]], folderUserRights:Option[Seq[VSDURL]], selfUrl :String)
+case class VSDLink(id :Int, description: String, object1 : VSDURL, object2: VSDURL, selfUrl : String)
+case class VSDModality(id :Int, name :String, description: String, selfUrl : String)
+case class VSDSegmentationMethod(id: Int, name: String, selfUrl : String)
 
 object VSDJson {
 
@@ -48,4 +52,10 @@ object VSDJson {
   implicit val VSDFolderProtocol = jsonFormat9(VSDFolder)
   implicit val VSDPaginatedFolderProtocol = jsonFormat4(VSDPaginatedList[VSDFolder])
   implicit val VSDUserProtocol = jsonFormat3(VSDUser)
+  implicit val VSDLinkProtocol = jsonFormat5(VSDLink)
+  implicit val VSDModalityProtocol =  jsonFormat4(VSDModality)
+  implicit val VSDPaginatedModalityProtocol = jsonFormat4(VSDPaginatedList[VSDModality])
+  implicit val VSDSegmentationMethodProtocol =  jsonFormat3(VSDSegmentationMethod)
+  implicit val VSDPaginatedSegMethodProtocol = jsonFormat4(VSDPaginatedList[VSDSegmentationMethod])
+
 }
