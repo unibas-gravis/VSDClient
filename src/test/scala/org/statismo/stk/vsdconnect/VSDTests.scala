@@ -296,6 +296,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
+    val linkP = scala.concurrent.promise[VSDLink]
+
     it("can link 2 objects") {
       // first upload a second object
       val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
@@ -310,10 +312,9 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       whenReady(fut, timeout(Span(4, Minutes))) { case (link, obj2) =>
         assert(link.object1.selfUrl == obj2.selfUrl  && link.object2.selfUrl == obj1Info.selfUrl)
         readyToCleanObject.complete(Success(true))
+        linkP.success(link)
       }
     }
-
-
 
     it("can list the modalities on the VSD") {
       val modalitiesF = vsd.listModalities()
@@ -329,7 +330,11 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-
+    it("can delete a link") {
+      val link = Await.result(linkP.future, Duration(5, MINUTES))
+      val del = vsd.deleteLink(VSDLinkID(link.id))
+      whenReady(del, timeout(Span(1, Minutes))) { u => assert(u.isSuccess) }
+    }
 
     it("can delete unpublished VSD objects") {
       val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
@@ -347,7 +352,6 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
         readyToCleanFolder.success(true)
       }
     }
-
 
     it("can delete an empty folder") {
       val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))

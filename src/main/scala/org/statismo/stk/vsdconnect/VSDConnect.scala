@@ -195,10 +195,10 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     }
   }
 
-  def deleteUnpublishedVSDObject(id: VSDObjectID): Future[Try[HttpResponse]] = {
+  def deleteUnpublishedVSDObject(id: VSDObjectID): Future[Try[Unit]] = {
     val channel = authChannel
     channel(Delete(s"$BASE_URL/objects/${id.id}")).map { r =>
-      if (r.status.isSuccess) Success(r) else Failure(new Exception(s"failed to delete unpublished vsd object id ${id}" + r.entity.toString()))
+      if (r.status.isSuccess) Success(()) else Failure(new Exception(s"failed to delete unpublished vsd object id ${id}" + r.entity.toString()))
     }
   }
 
@@ -256,10 +256,10 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    * deletes a folder with the given name and parent folder ID on the VSD
    *
    */
-  def deleteFolder(id: VSDFolderID)  : Future[Try[HttpResponse]] = {
+  def deleteFolder(id: VSDFolderID)  : Future[Try[Unit]] = {
     val channel = authChannel
     channel(Delete(s"$BASE_URL/folders/${id.id}")).map { r =>
-      if (r.status.isSuccess) Success(r) else Failure(new Exception(s"failed to delete directory with id ${id}" + r.entity.toString()))
+      if (r.status.isSuccess) Success(()) else Failure(new Exception(s"failed to delete directory with id ${id}" + r.entity.toString()))
     }
   }
 
@@ -369,6 +369,16 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     val channel = authChannel ~> unmarshal[VSDLink] ; channel(Get(s"$BASE_URL/object-links/${id.id}"))
   }
 
+
+  /**
+   * deletes an existing link
+   **/
+  def deleteLink(id: VSDLinkID) : Future[Try[Unit]] = {
+    val channel = authChannel
+    channel(Delete(s"$BASE_URL/object-links/${id.id}")).map { r =>
+      if (r.status.isSuccess) Success(()) else Failure(new Exception(s"failed to delete vsd link with id ${id}" + r.entity.toString()))
+    }
+  }
 
   /**
     * Lists modalities supported by the VSD
