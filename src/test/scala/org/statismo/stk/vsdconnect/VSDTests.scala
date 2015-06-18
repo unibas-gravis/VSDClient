@@ -333,7 +333,9 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
     it("can list the object types supported by the VSD") {
       val r = vsd.listObjectTypes()
-      whenReady(r, timeout(Span(1, Minutes))) { u => println("received  " + u)}
+      whenReady(r, timeout(Span(1, Minutes))) { u =>
+        assert(u.find{ pair  => pair._2 == "RawImage"}.isDefined)
+      }
     }
 
     it("can delete a link") {

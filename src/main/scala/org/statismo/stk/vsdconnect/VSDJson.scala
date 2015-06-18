@@ -82,6 +82,10 @@ case class VSDModality(id: Int, name: String, description: String, selfUrl: Stri
 
 case class VSDSegmentationMethod(id: Int, name: String, selfUrl: String)
 
+case class VSDKeyValEntry(key : Int, value: String)
+
+case class VSDObjectOptions(types : Seq[VSDKeyValEntry])
+
 object VSDJson {
 
   implicit val VSDURLProtocol = jsonFormat1(VSDURL.apply)
@@ -110,4 +114,6 @@ object VSDJson {
   implicit val VSDPaginatedModalityProtocol = jsonFormat4(VSDPaginatedList[VSDModality])
   implicit val VSDSegmentationMethodProtocol = jsonFormat3(VSDSegmentationMethod)
   implicit val VSDPaginatedSegMethodProtocol = jsonFormat4(VSDPaginatedList[VSDSegmentationMethod])
+  implicit val VSDKeyValEntryProtocol = jsonFormat2(VSDKeyValEntry)
+  implicit val VSDObjectOptionsProtocol = jsonFormat1(VSDObjectOptions)
 }

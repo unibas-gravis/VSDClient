@@ -12,7 +12,7 @@ import org.apache.commons.io.FileUtils
 import org.statismo.stk.vsdconnect.VSDJson._
 import spray.can.Http
 import spray.client.pipelining
-import spray.client.pipelining.{Post, WithTransformerConcatenation, addCredentials, sendReceive, _}
+import spray.client.pipelining._
 import spray.http._
 import spray.httpx.SprayJsonSupport._
 import spray.json.RootJsonFormat
@@ -402,10 +402,10 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   /**
     * Lists the types of objects supported by the VSD (e.g. Raw, Segmentation, ..)
     */
-  def listObjectTypes() = {
+  def listObjectTypes() : Future[Seq[(Int, String)]] = {
     println("Listing object types")
-    val channel = authChannel ~>  VSDConnect.printStep
-    channel(Options(s"$BASE_URL/objects"))
+    val channel = authChannel ~>    unmarshal[VSDObjectOptions]
+    channel(Options(s"$BASE_URL/objects")).map{ _.types.map(kv => (kv.key, kv.value))}
   }
 
  }
