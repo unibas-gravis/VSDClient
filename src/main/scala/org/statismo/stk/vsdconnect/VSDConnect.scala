@@ -8,12 +8,14 @@ import akka.event.Logging
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout.durationToTimeout
+import org.apache.commons.io.FileUtils
 import org.statismo.stk.vsdconnect.VSDJson._
 import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining.{Post, WithTransformerConcatenation, addCredentials, sendReceive, _}
 import spray.http._
 import spray.httpx.SprayJsonSupport._
+import spray.json.RootJsonFormat
 import spray.util.pimpFuture
 
 import scala.Array.canBuildFrom
@@ -21,7 +23,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
-import org.apache.commons.io.FileUtils
+
 /**
  * Simple upload of files based on Basic authentication
  */
@@ -117,12 +119,13 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     downloadFile(VSDURL(s"$BASE_URL/files/${id.id}/download"), downloadDir, fileName)
   }
 
-  def getVSDObjectInfo(id: VSDObjectID) : Future[VSDObjectInfo] = {
-    val pipe = authChannel ~> unmarshal[VSDObjectInfo]
+  def getVSDObjectInfo[A <: VSDObjectInfo : RootJsonFormat](id: VSDObjectID) : Future[A] = {
+    val pipe = authChannel ~> unmarshal[A]
     pipe(Get(s"$BASE_URL/objects/${id.id}"))
   }
 
-  def updateVSDObjectInfo(info: VSDObjectInfo, nbRetrials: Int = 0): Future[Try[HttpResponse]] = {
+
+  def updateVSDObjectInfo[A <: VSDObjectInfo: RootJsonFormat](info: A, nbRetrials: Int = 0): Future[Try[HttpResponse]] = {
 
     val resp = authChannel(Put(s"$BASE_URL/objects/${info.id}", info)).map { s => Success(s) }
     resp.recoverWith {
@@ -159,8 +162,8 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     paginationRecursion(s"$BASE_URL/ontologies/${typ}/", nbRetrialsPerPage,channel, nbRetrialsPerPage)
   }
 
-  def listUnpublishedObjects(nbRetrialsPerPage: Int = 3): Future[Array[VSDObjectInfo]] = {
-    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDObjectInfo]]
+  def listUnpublishedObjects(nbRetrialsPerPage: Int = 3): Future[Array[VSDCommonObjectInfo]] = {
+    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDCommonObjectInfo]]
     paginationRecursion(s"$BASE_URL/objects/unpublished/", nbRetrialsPerPage,channel, nbRetrialsPerPage)
   }
 
@@ -168,8 +171,8 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    * returns the list of already validated objects
    *
    */
-  def listPublishedObjects(nbRetrialsPerPage: Int = 3) : Future[Array[VSDObjectInfo]] = {
-    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDObjectInfo]]
+  def listPublishedObjects(nbRetrialsPerPage: Int = 3) : Future[Array[VSDCommonObjectInfo]] = {
+    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDCommonObjectInfo]]
     paginationRecursion(s"$BASE_URL/objects/published/", nbRetrialsPerPage,channel, nbRetrialsPerPage)
   }
 
@@ -292,9 +295,9 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    *
    * The downloaded files are first stored in a temporary directory, and only on success of all files moved to the indicated destination.
    * */
-  def downloadFolder(folder: VSDFolder, destination : File) : Future[Seq[(VSDObjectInfo, File)]]= {
+  def downloadFolder(folder: VSDFolder, destination : File) : Future[Seq[(VSDCommonObjectInfo, File)]]= {
     val infoChannel = authChannel ~> unmarshal[VSDFolder]
-    val objInfoChannel = authChannel ~> unmarshal[VSDObjectInfo]
+    val objInfoChannel = authChannel ~> unmarshal[VSDCommonObjectInfo]
 
     if(destination.isDirectory()) return Future.failed(new Exception("Indicated folder already exists"))
 
@@ -394,6 +397,15 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   def listSegmentationMethods() = {
     val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDSegmentationMethod]]
     paginationRecursion(s"$BASE_URL/segmentation_methods", 3, channel, 3)
+  }
+
+  /**
+    * Lists the types of objects supported by the VSD (e.g. Raw, Segmentation, ..)
+    */
+  def listObjectTypes() = {
+    println("Listing object types")
+    val channel = authChannel ~>  VSDConnect.printStep
+    channel(Options(s"$BASE_URL/objects"))
   }
 
  }

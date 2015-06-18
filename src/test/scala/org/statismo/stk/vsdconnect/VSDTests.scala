@@ -24,6 +24,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
   val tmpDir = new File(System.getProperty("java.io.tmpdir"))
 
+  import VSDJson._
+
   describe("VSD REST connection") {
 
     val uploadedFile = scala.concurrent.promise[VSDFileID]
@@ -93,13 +95,12 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val objInfo = scala.concurrent.promise[VSDObjectInfo]
+    val objInfo = scala.concurrent.promise[VSDRawImageObjectInfo]
 
-    it("can retrieve information on a VSD object") {
-
+    it("can retrieve information on a VSD Raw Image object") {
       val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
       println("retrieving object information")
-      val info = vsd.getVSDObjectInfo(objId)
+      val info = vsd.getVSDObjectInfo[VSDRawImageObjectInfo](objId)
       whenReady(info, timeout(Span(1, Minutes))) { i =>
         objInfo.success(i)
         assert(i.sliceThickness.get === 0.67f)
@@ -118,7 +119,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
       val f = for {
         f1 <- vsd.updateVSDObjectInfo(newInfo, 4)
-        updatedInfo <- vsd.getVSDObjectInfo(VSDObjectID(i.id))
+        updatedInfo <- vsd.getVSDObjectInfo[VSDRawImageObjectInfo](VSDObjectID(i.id))
       } yield updatedInfo
 
       whenReady(f, timeout(Span(1, Minutes))) { s =>
@@ -168,7 +169,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
         assert(newObjOntoItem.position === oldObinf.ontologyItemRelations.map(_.size).getOrElse(0))
         objOntoItemRelationId.success(newObjOntoItem.id)
 
-        val f = vsd.getVSDObjectInfo(VSDObjectID(oldObinf.id))
+        val f = vsd.getVSDObjectInfo[VSDRawImageObjectInfo](VSDObjectID(oldObinf.id))
         f onSuccess { case i => newObjInfo.success(i) }
         f onFailure { case e => newObjInfo.failure(new Exception("Failed to fetch obj Info after adding ontology item " + e)) }
       }
@@ -304,7 +305,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val obj2Id = Await.result(object2P.future, Duration(3, MINUTES))
 
       val fut = for {
-        obj2Info <- vsd.getVSDObjectInfo(obj2Id)
+        obj2Info <- vsd.getVSDObjectInfo[VSDSegmentationObjectInfo](obj2Id)
         link <- vsd.addLink(VSDURL(obj2Info.selfUrl), VSDURL(obj1Info.selfUrl))
         lookedUpLink <- vsd.getLinkInfo(VSDLinkID(link.id))
       } yield {(lookedUpLink,obj2Info)}
@@ -328,6 +329,11 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       whenReady(segMethsF, timeout(Span(1, Minutes))) { segMethods =>
         assert(segMethods.find(_.name == "Manual").isDefined)
       }
+    }
+
+    it("can list the object types supported by the VSD") {
+      val r = vsd.listObjectTypes()
+      whenReady(r, timeout(Span(1, Minutes))) { u => println("received  " + u)}
     }
 
     it("can delete a link") {
