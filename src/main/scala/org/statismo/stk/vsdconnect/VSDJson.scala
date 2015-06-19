@@ -86,6 +86,22 @@ case class VSDKeyValEntry(key : Int, value: String)
 
 case class VSDObjectOptions(types : Seq[VSDKeyValEntry])
 
+sealed case class VSDObjectRight(id: Int, name: String, rightValue: Int, selfUrl:String)
+object VSDNoneRight extends VSDObjectRight(1, "None", 0,"https://demo.virtualskeleton.ch/api/object_rights/1")
+object VSDVisitRight extends VSDObjectRight(2, "Visit", 1,"https://demo.virtualskeleton.ch/api/object_rights/1")
+object VSDReadRight extends VSDObjectRight(3, "Read", 2,"https://demo.virtualskeleton.ch/api/object_rights/1")
+object VSDDownloadRight extends VSDObjectRight(4, "Download", 4,"https://demo.virtualskeleton.ch/api/object_rights/1")
+object VSDEditRight extends VSDObjectRight(5, "Edit", 8,"https://demo.virtualskeleton.ch/api/object_rights/1")
+object VSDManageRight extends VSDObjectRight(6, "Manage", 16,"https://demo.virtualskeleton.ch/api/object_rights/1")
+object VSDOwnerRight extends VSDObjectRight(7, "Owner", 32,"https://demo.virtualskeleton.ch/api/object_rights/1")
+
+case class VSDObjectGroupRight(id : Int, relatedObject:VSDURL, relatedGroup: VSDURL, relatedRights: Seq[VSDURL], selfUrl: String)
+
+case class VSDObjectUserRight(id : Int, relatedObject:VSDURL, relatedUser: VSDURL, relatedRights: Seq[VSDURL], selfUrl: String)
+
+case class VSDGroup(id :Int, name: String, chief:Option[VSDURL], selfUrl: String)
+
+
 object VSDJson {
 
   implicit val VSDURLProtocol = jsonFormat1(VSDURL.apply)
@@ -116,4 +132,11 @@ object VSDJson {
   implicit val VSDPaginatedSegMethodProtocol = jsonFormat4(VSDPaginatedList[VSDSegmentationMethod])
   implicit val VSDKeyValEntryProtocol = jsonFormat2(VSDKeyValEntry)
   implicit val VSDObjectOptionsProtocol = jsonFormat1(VSDObjectOptions)
+  implicit val VSDObjectRightProtocol = jsonFormat4(VSDObjectRight)
+  implicit val VSDPaginatedRightsrotocol = jsonFormat4(VSDPaginatedList[VSDObjectRight])
+  implicit val VSDGroupProtocol = jsonFormat4(VSDGroup.apply)
+  implicit val VSDObjectGroupRightProtocol = jsonFormat5(VSDObjectGroupRight.apply)
+  implicit val VSDObjectUserRightProtocol = jsonFormat5(VSDObjectUserRight.apply)
+  implicit val VSDPaginatedGrouprotocol = jsonFormat4(VSDPaginatedList[VSDGroup])
+
 }

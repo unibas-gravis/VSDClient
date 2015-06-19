@@ -21,6 +21,7 @@ import spray.util.pimpFuture
 import scala.Array.canBuildFrom
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
+import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
@@ -280,7 +281,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   /**
    * removes a VSD object from an existing folder
    */
-  def removeObjectFromFolder(obj : VSDObjectInfo, folder: VSDFolder) = {
+  def removeObjectFromFolder(obj : VSDObjectInfo, folder: VSDFolder) : Future[VSDFolder]= {
     val channel = authChannel ~> unmarshal[VSDFolder]
     val r =  folder.containedObjects.getOrElse(Seq[VSDURL]()).filterNot(l => l == VSDURL(obj.selfUrl))
     val folderModel =  folder.copy(containedObjects = if (r.isEmpty) None else Some(r))
@@ -408,6 +409,51 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     channel(Options(s"$BASE_URL/objects")).map{ _.types.map(kv => (kv.key, kv.value))}
   }
 
+  /**
+   * Publishes (validates) an object
+   *
+   */
+  def publishObject(id : VSDObjectID) : Future[VSDCommonObjectInfo] = {
+    val channel = authChannel ~>  unmarshal[VSDCommonObjectInfo]
+    channel(Put(s"$BASE_URL/objects/${id.id}/publish"))
+  }
+
+  /**
+   * Sets group rights for a VSD object
+   *
+   * The rights are collection of the pre-defined objects :
+   * [[VSDNoneRight]], [[VSDReadRight]], [[VSDEditRight]], [[VSDVisitRight]],[[VSDManageRight]],[[VSDDownloadRight]], [[VSDOwnerRight]]
+   * */
+
+  def setObjectGroupRights(obj : VSDURL, group: VSDURL, rights : Seq[VSDObjectRight]) : Future[VSDObjectGroupRight] = {
+    val channel = authChannel ~>  unmarshal[VSDObjectGroupRight]
+    val req = VSDObjectGroupRight(0, obj, group, rights.map(r => VSDURL(r.selfUrl)), "dummy")
+    channel(Post(s"$BASE_URL/object-group-rights", req))
+  }
+
+
+  /**
+   * Sets user rights for a VSD object
+   *
+   * The rights are collection of the pre-defined objects :
+   * [[VSDNoneRight]], [[VSDReadRight]], [[VSDEditRight]], [[VSDVisitRight]],[[VSDManageRight]],[[VSDDownloadRight]], [[VSDOwnerRight]]
+   * */
+
+  def setObjectUserRights(obj : VSDURL, user: VSDURL, rights : Seq[VSDObjectRight]) : Future[VSDObjectUserRight] = {
+    val channel = authChannel ~>  unmarshal[VSDObjectUserRight]
+    val req = VSDObjectUserRight(0, obj, user, rights.map(r => VSDURL(r.selfUrl)), "dummy")
+    channel(Post(s"$BASE_URL/object-user-rights", req))
+  }
+
+
+  /** *
+    * Get a list of groups
+     */
+  def listGroups(): Future[Array[VSDGroup]]= {
+    val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDGroup]]
+    paginationRecursion(s"$BASE_URL/groups", 3, channel, 3)
+  }
+
  }
 
 object VSDConnect {
@@ -431,11 +477,21 @@ object VSDConnect {
     connect(username, password , BASE_URL)
   }
 
+  /**
+    * Factory method that avoids writing credentials in source code. The indicated file must contain the login on the first line
+    * and the password on the second
+    *
+    */
+  def apply(credentialsFile: File): Try[VSDConnect] = {
+    val lines = Source.fromFile(credentialsFile).getLines().toIndexedSeq
+    val login= lines(0) ;  val pass= lines(1)
+    apply(login, pass)
+  }
+
   def demo(username : String, password : String) : Try[VSDConnect] = {
     val BASE_URL = "https://demo.virtualskeleton.ch/api"
     connect(username, password , BASE_URL)
   }
-
 
   def printStep(resp: HttpResponse): HttpResponse = {
     println("*** Response : " + resp.entity.asString)

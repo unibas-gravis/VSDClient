@@ -285,6 +285,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       whenReady(userInfo, timeout(Span(1, Minutes))) { i => assert(i.username == "system") }
     }
 
+
     val object2P = scala.concurrent.promise[VSDObjectID]
 
     it("can upload a nifti segmentation") {
@@ -312,7 +313,6 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
       whenReady(fut, timeout(Span(4, Minutes))) { case (link, obj2) =>
         assert(link.object1.selfUrl == obj2.selfUrl  && link.object2.selfUrl == obj1Info.selfUrl)
-        readyToCleanObject.complete(Success(true))
         linkP.success(link)
       }
     }
@@ -353,6 +353,35 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
         assert(info.`type`.get == statModelType)
         // delete it immediately
         vsd.deleteUnpublishedVSDObject(VSDObjectID(info.id))
+      }
+    }
+
+    it("can assign object group right") {
+      val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
+
+      val rightF = for {
+        group <- vsd.listGroups.map(_.head)
+        r <- vsd.setObjectGroupRights(VSDURL(obj1Info.selfUrl), VSDURL(group.selfUrl), Seq(VSDVisitRight))
+      } yield r
+
+      whenReady(rightF, timeout(Span(2, Minutes))) { right =>
+        assert(right.relatedRights(0).selfUrl == VSDVisitRight.selfUrl)
+      }
+    }
+
+    it("can assign object user rights") {
+      val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
+
+      val rightF = for {
+        user <- vsd.getUserInfo(VSDUserID(1))
+        r2 = println(user)
+        r <- vsd.setObjectUserRights(VSDURL(obj1Info.selfUrl), VSDURL(user.selfUrl), Seq(VSDVisitRight))
+      } yield r
+
+      whenReady(rightF, timeout(Span(2, Minutes))) { right =>
+        println(right)
+        //assert(right.relatedRights(0).selfUrl == VSDVisitRight.selfUrl)
+        readyToCleanObject.complete(Success(true))
       }
     }
 
