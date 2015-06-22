@@ -369,6 +369,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
+
+    val rightP = scala.concurrent.promise[VSDObjectUserRight]
     it("can assign object user rights") {
       val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
 
@@ -379,9 +381,17 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       } yield r
 
       whenReady(rightF, timeout(Span(2, Minutes))) { right =>
-        println(right)
-        //assert(right.relatedRights(0).selfUrl == VSDVisitRight.selfUrl)
+        assert(right.relatedRights(0).selfUrl == VSDVisitRight.selfUrl)
+        rightP.success(right)
         readyToCleanObject.complete(Success(true))
+      }
+    }
+
+    it("can retrieve object user rights") {
+      val right = Await.result(rightP.future, Duration(5, MINUTES))
+      val readRightF = vsd.getObjectUserRight(VSDURL(right.selfUrl))
+      whenReady(readRightF, timeout(Span(2, Minutes))) { readRight =>
+        assert(readRight == right)
       }
     }
 

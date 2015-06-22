@@ -126,6 +126,12 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   }
 
 
+  def getVSDObjectInfo[A <: VSDObjectInfo : RootJsonFormat](url : VSDURL) : Future[A] = {
+    val pipe = authChannel ~> unmarshal[A]
+    pipe(Get(url.selfUrl))
+  }
+
+
   def updateVSDObjectInfo[A <: VSDObjectInfo: RootJsonFormat](info: A, nbRetrials: Int = 0): Future[Try[HttpResponse]] = {
 
     val resp = authChannel(Put(s"$BASE_URL/objects/${info.id}", info)).map { s => Success(s) }
@@ -211,6 +217,15 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    */
   def downloadVSDObject(id: VSDObjectID, downloadDir: File, fileName: String): Future[Try[File]] = {
     downloadFile(VSDURL(s"$BASE_URL/objects/${id.id}/download"), downloadDir, fileName)
+  }
+
+  /**
+   * Download of object is always shipped in one zip file
+   */
+  def downloadVSDObject(url: VSDURL, downloadDir: File, fileName: String): Future[Try[File]] = {
+      getVSDObjectInfo[VSDCommonObjectInfo](url).flatMap { info =>
+        downloadVSDObject(VSDObjectID(info.id), downloadDir,fileName)
+      }
   }
 
 
@@ -452,6 +467,25 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   def listGroups(): Future[Array[VSDGroup]]= {
     val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDGroup]]
     paginationRecursion(s"$BASE_URL/groups", 3, channel, 3)
+  }
+
+  /** *
+    * Returns the details of an object group right relation, given its url
+    *
+    */
+  def getObjectGroupRight(url : VSDURL) : Future[VSDObjectGroupRight]= {
+    val channel = authChannel ~> unmarshal[VSDObjectGroupRight]
+    channel(Get(url.selfUrl))
+  }
+
+
+  /** *
+    * Returns the details of an object user right relation, given its url
+    *
+    */
+  def getObjectUserRight(url : VSDURL) : Future[VSDObjectUserRight]= {
+    val channel = authChannel ~> unmarshal[VSDObjectUserRight]
+    channel(Get(url.selfUrl))
   }
 
  }
