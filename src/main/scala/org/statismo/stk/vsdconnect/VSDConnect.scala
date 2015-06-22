@@ -247,6 +247,14 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     channel(Get(s"$BASE_URL/folders/${id.id}"))
   }
 
+  /**
+   * Gets information given a folder id
+   */
+  def getFolderInfo(url: VSDURL): Future[VSDFolder] = {
+    val channel = authChannel ~> unmarshal[VSDFolder]
+    channel(Get(url.selfUrl))
+  }
+
 
   /**
    * creates a folder with the given name and a parent folder on the VSD
@@ -488,9 +496,36 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     channel(Get(url.selfUrl))
   }
 
- }
 
+  /**
+   * Returns a String representing the hierarchical path to this folder
+   *
+   */
+  def getFolderPath(url : VSDURL) : Future[String] = {
+    getFolderInfo(url).flatMap { info =>
+        if(info.parentFolder.isEmpty)  Future {"/"+info.name}
+        else getFolderPath(info.parentFolder.get).map(p => p + "/" + info.name)
+    }
+  }
+
+
+  /**
+   * Returns a VSDFolder given its hierarchical path (if it exists, None otherwise)
+   */
+  def getFolderFromPath(path : String) : Future[Option[VSDFolder]] = {
+
+    val lastName = path.split('/').last
+    val matchingF = listFolders().map { l => l.filter(_.name == lastName)}
+
+    // for all folders matching the last name, get their full path and compare it to requested
+    val matchingPathsF = matchingF.flatMap { matching =>  Future.sequence(matching.toIndexedSeq.map( i => getFolderPath(VSDURL(i.selfUrl)).map(pth => (i, pth))))}
+    matchingPathsF.map { matchingPaths =>  matchingPaths.find(pair => pair._2 == path).map(_._1) }
+  }
+
+
+ }
 object VSDConnect {
+
 
   private def connect(username: String, password: String, BASE_URL: String): Try[VSDConnect] = {
     import system.dispatcher

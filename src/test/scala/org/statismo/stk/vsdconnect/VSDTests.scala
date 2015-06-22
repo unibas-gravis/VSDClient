@@ -280,6 +280,22 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     }
 
 
+    it("can retrieve the hierarchical path of a folder") {
+      val addedInfo = Await.result(addedToFolder.future, Duration(1, MINUTES))
+      val u = vsd.getFolderPath(VSDURL(addedInfo.selfUrl))
+
+      whenReady(u, timeout(Span(1, Minutes))) { p => assert(p == "/demo/MyProjects/unitTestFolder") }
+    }
+
+
+    it("can retrieve a folder from its hierarchical path") {
+      val addedInfo = Await.result(addedToFolder.future, Duration(1, MINUTES))
+      val folderF = vsd.getFolderFromPath( "/demo/MyProjects/unitTestFolder")
+      whenReady(folderF, timeout(Span(1, Minutes))) { folder =>
+        assert(folder.isDefined && folder.get.id == addedInfo.id)
+      }
+    }
+
     it("can retrieve user info") {
       val userInfo = vsd.getUserInfo(VSDUserID(1))
       whenReady(userInfo, timeout(Span(1, Minutes))) { i => assert(i.username == "system") }
