@@ -442,7 +442,6 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       whenReady(deletion, timeout(Span(1, Minutes))) { r => assert(r.isSuccess) }
     }
 
-
   }
 
 }

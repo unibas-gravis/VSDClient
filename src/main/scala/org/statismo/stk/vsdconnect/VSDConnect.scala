@@ -313,7 +313,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
 
 
   /**
-   * Downloads the content of the folder to the indicated File destination.If the destination folder already exists in the file system, the function will abort.
+   * Downloads the content of the folder to the indicated File destination. If the destination folder already exists in the file system, the function will abort.
    * In case the VSD folder contains subfolders, this call will result in a recursion
    * On success,returns the list of downloaded VSDObjectIDs along with their corresponding File.
    *
@@ -340,7 +340,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     val downloadedObjsInFolderF = Future.sequence(folder.containedObjects.getOrElse(Seq[VSDURL]()).map { objURL =>
       for {
         info <- objInfoChannel(Get(objURL.selfUrl))
-        dl <- downloadVSDObject(VSDObjectID(info.id), tempDestination, s"VSD_${info.id}").map(_.get)
+        dl <- downloadVSDObject(VSDObjectID(info.id), tempDestination, s"VSD_${info.id}.zip").map(_.get)
       } yield ((info, dl))
     })
 
