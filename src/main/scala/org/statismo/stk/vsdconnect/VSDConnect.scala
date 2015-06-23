@@ -188,6 +188,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     channel(Get(url.selfUrl))
   }
 
+
   def createObjectOntologyItemRelation(objectInfo: VSDObjectInfo, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
     val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
     getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
