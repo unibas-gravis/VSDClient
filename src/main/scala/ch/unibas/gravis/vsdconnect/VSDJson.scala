@@ -1,4 +1,4 @@
-package org.statismo.stk.vsdconnect
+package ch.unibas.gravis.vsdconnect
 
 import spray.json._
 import DefaultJsonProtocol._

@@ -1,4 +1,4 @@
-package org.statismo.stk.vsdconnect
+package ch.unibas.gravis.vsdconnect
 
 import org.specs2.matcher.ShouldMatchers
 import org.scalatest.FunSpec

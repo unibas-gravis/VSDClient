@@ -1,11 +1,12 @@
-package org.statismo.stk.vsdconnect;
+package ch.unibas.gravis.vsdconnect.examples;
 
+import ch.unibas.gravis.vsdconnect.*;
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 
 /**
-* Created by bouabene on 6/22/15.
-*/
+ * Main class showing a very simple example usage of the Scala library from Java.
+ */
 public class ExampleUsage {
 
     public static void main(String[] args) {
