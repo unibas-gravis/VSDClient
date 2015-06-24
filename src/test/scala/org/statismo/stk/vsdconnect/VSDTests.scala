@@ -16,6 +16,13 @@ import java.util.concurrent._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Span, Seconds, Minutes}
 
+/** *
+  * This unit test suite has for objective to test the good functioning of the client and its compatibility with
+  * the VSD REST API. Therefore, the code below should NOT be taken as an example usage of the client API, as it adds additional
+  * complexity (and test framework specific code) to handle asynchronous events.
+  * For a manual on the client API usage, please refer to our quick start documents FIXME as well as the API doc.
+  */
+
 class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
   val vsd = VSDConnect.demo("demo@virtualskeleton.ch", "demo").get
