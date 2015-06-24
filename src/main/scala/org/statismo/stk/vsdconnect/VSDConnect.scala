@@ -38,9 +38,9 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   val authChannel =  addCredentials(BasicHttpCredentials(user, password)) ~> sendReceive
 
   /**
-   * This function returns the generated VSD file id or an exception in case the send failed
+   * This function returns the generated VSD file URL along with to which object it belongs (URL) or an exception in case the send failed
    */
-  def sendFile(f: File, nbRetrials: Int = 0): Future[Try[(VSDFileID, VSDObjectID)]] = {
+  def sendFile(f: File, nbRetrials: Int = 0): Future[Try[FileUploadResponse]] = {
 
     val pipe = authChannel ~> unmarshal[FileUploadResponse]
     val bArray = Files.readAllBytes(f.toPath)
@@ -49,12 +49,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
         HttpEntity(ContentType(MediaTypes.`multipart/form-data`), bArray),
         HttpHeaders.`Content-Disposition`("form-data", Map("filename" -> (f.getName /*+ ".dcm"*/))) :: Nil))))
 
-    val t = pipe(req) map { r =>
-
-      val fileId = r.file.selfUrl.split('/').last
-      val objectId = r.relatedObject.selfUrl.split('/').last
-      Success(VSDFileID(fileId.toInt), VSDObjectID(objectId.toInt))
-    }
+    val t = pipe(req) map { r => Success(r) }
     t.recoverWith {
       case e =>
         if (nbRetrials > 0) {
@@ -69,25 +64,25 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    * that are associated with each uploaded file, or the exception for the files that failed
    *
    */
-  def sendDICOMDirectoryDetailed(subjDir: File): Future[List[(String, Try[(VSDFileID, VSDObjectID)])]] = {
+  def sendDICOMDirectoryDetailed(subjDir: File): Future[List[(String, Try[FileUploadResponse])]] = {
     val listFiles = subjDir.listFiles
     val send = for (f <- listFiles) yield { sendFile(f, 2).map(t => (f.getAbsolutePath(), t)) }
     Future.sequence(send.toList)
   }
 
   /**
-   * This method uploads a Dicom directory, and returns if succeeded the list of VSDObjectIds created,
+   * This method uploads a Dicom directory, and returns if succeeded the list of VSD Object URLs created,
    * or on failure, the list of files that failed to be uploaded
    * *
    */
-  def sendDICOMDirectory(subjDir: File): Future[Either[List[String], List[VSDObjectID]]] = {
+  def sendDICOMDirectory(subjDir: File): Future[Either[List[String], List[VSDURL]]] = {
 
     val summary = for {
       detailed <- sendDICOMDirectoryDetailed(subjDir)
 
       failedFiles = detailed.filter { case (_, t) => t.isFailure }.map(_._1)
       succeeded = detailed.filter { case (_, t) => t.isSuccess }
-      distinctObjectIds = detailed.filter { case (_, t) => t.isSuccess }.map(_._2.get._2).distinct
+      distinctObjectIds = detailed.filter { case (_, t) => t.isSuccess }.map(_._2.get.relatedObject).distinct
     } yield {
       if (failedFiles.isEmpty) Right(distinctObjectIds) else Left(failedFiles)
     }
@@ -112,19 +107,6 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
       }
     }
   }
-
-  /**
-   * This method downloads a file from the VSD given its file ID
-   */
-  def downloadFile(id: VSDFileID, downloadDir: File, fileName: String): Future[Try[File]] = {
-    downloadFile(VSDURL(s"$BASE_URL/files/${id.id}/download"), downloadDir, fileName)
-  }
-
-  def getVSDObjectInfo[A <: VSDObjectInfo : RootJsonFormat](id: VSDObjectID) : Future[A] = {
-    val pipe = authChannel ~> unmarshal[A]
-    pipe(Get(s"$BASE_URL/objects/${id.id}"))
-  }
-
 
   def getVSDObjectInfo[A <: VSDObjectInfo : RootJsonFormat](url : VSDURL) : Future[A] = {
     val pipe = authChannel ~> unmarshal[A]
@@ -189,43 +171,37 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   }
 
 
-  def createObjectOntologyItemRelation(objectInfo: VSDObjectInfo, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
+  def createObjectOntologyItemRelation(objectURL: VSDURL, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
     val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
     getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
-      val newRelation = VSDObjectOntologyItem(1, 0, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
+      val newRelation = VSDObjectOntologyItem(1, 0, ontologyItemInfo.`type`, objectURL, ontologyItemURL, "")
       channel(Post(s"$BASE_URL/object-ontologies/${ontologyItemInfo.`type`}", newRelation))
     }
   }
 
-  def updateObjectOntologyItemRelation(id: Int, objectInfo: VSDObjectInfo, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
+  def updateObjectOntologyItemRelation(relation: VSDObjectOntologyItem, objectInfo: VSDObjectInfo, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
     val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
     val position = objectInfo.ontologyItemRelations.map(_.size).getOrElse(0)
     getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
-      val newRelation = VSDObjectOntologyItem(id, position, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
-      channel(Put(s"$BASE_URL/object-ontologies/${ontologyItemInfo.`type`}/${id}", newRelation))
+      val newRelation = VSDObjectOntologyItem(relation.id, position, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
+      channel(Put(s"$BASE_URL/object-ontologies/${ontologyItemInfo.`type`}/${relation.id}", newRelation))
     }
   }
 
-  def deleteUnpublishedVSDObject(id: VSDObjectID): Future[Try[Unit]] = {
+  def deleteUnpublishedVSDObject(url : VSDURL): Future[Try[Unit]] = {
     val channel = authChannel
-    channel(Delete(s"$BASE_URL/objects/${id.id}")).map { r =>
-      if (r.status.isSuccess) Success(()) else Failure(new Exception(s"failed to delete unpublished vsd object id ${id}" + r.entity.toString()))
+    channel(Delete(url.selfUrl)).map { r =>
+      if (r.status.isSuccess) Success(()) else Failure(new Exception(s"failed to delete unpublished vsd object ${url.selfUrl}" + r.entity.toString()))
     }
   }
 
-  /**
-   * Download of object is always shipped in one zip file
-   */
-  def downloadVSDObject(id: VSDObjectID, downloadDir: File, fileName: String): Future[Try[File]] = {
-    downloadFile(VSDURL(s"$BASE_URL/objects/${id.id}/download"), downloadDir, fileName)
-  }
 
   /**
    * Download of object is always shipped in one zip file
    */
   def downloadVSDObject(url: VSDURL, downloadDir: File, fileName: String): Future[Try[File]] = {
       getVSDObjectInfo[VSDCommonObjectInfo](url).flatMap { info =>
-        downloadVSDObject(VSDObjectID(info.id), downloadDir,fileName)
+        downloadFile(VSDURL(info.downloadUrl), downloadDir, fileName)
       }
   }
 
@@ -239,15 +215,6 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
       paginationRecursion(s"$BASE_URL/folders", nbRetrialsPerPage, channel, nbRetrialsPerPage)
     }
 
-
-  /**
-   * Gets information given a folder id
-   */
-  def getFolderInfo(id: VSDFolderID): Future[VSDFolder] = {
-    val channel = authChannel ~> unmarshal[VSDFolder]
-    channel(Get(s"$BASE_URL/folders/${id.id}"))
-  }
-
   /**
    * Gets information given a folder id
    */
@@ -257,11 +224,8 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   }
 
 
-  /**
-   * creates a folder with the given name and a parent folder on the VSD
-   *
-   */
-  def createFolder(name: String, parentFolder: VSDFolder) : Future[VSDFolder] = {
+
+  private def createFolder(name: String, parentFolder: VSDFolder) : Future[VSDFolder] = {
     val channel = authChannel ~> unmarshal[VSDFolder]
     val folderModel =  VSDFolder(1, name, parentFolder.level + 1, Some(VSDURL(parentFolder.selfUrl)), None, None, None, None, "dummy")
     channel(Post(s"$BASE_URL/folders",folderModel))
@@ -271,10 +235,10 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    * creates a folder with the given name and parent folder ID on the VSD
    *
    */
-  def createFolder(name: String, parentFolderId: VSDFolderID)  : Future[VSDFolder] = {
+  def createFolder(name: String, parentFolder: VSDURL) : Future[VSDFolder] = {
     val channel = authChannel ~> unmarshal[VSDFolder]
     for {
-      parentFolder <- getFolderInfo(parentFolderId)
+      parentFolder <- getFolderInfo(parentFolder)
       res <- createFolder(name: String, parentFolder)
     } yield { res }
   }
@@ -284,10 +248,10 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    * deletes a folder with the given name and parent folder ID on the VSD
    *
    */
-  def deleteFolder(id: VSDFolderID)  : Future[Try[Unit]] = {
+  def deleteFolder(url: VSDURL)  : Future[Try[Unit]] = {
     val channel = authChannel
-    channel(Delete(s"$BASE_URL/folders/${id.id}")).map { r =>
-      if (r.status.isSuccess) Success(()) else Failure(new Exception(s"failed to delete directory with id ${id}" + r.entity.toString()))
+    channel(Delete(url.selfUrl)).map { r =>
+      if (r.status.isSuccess) Success(()) else Failure(new Exception(s"failed to delete directory ${url.selfUrl}" + r.entity.toString()))
     }
   }
 
@@ -295,9 +259,9 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   /**
    * Adds a VSD object to an existing folder
    */
-  def addObjectToFolder(obj : VSDObjectInfo, folder: VSDFolder) : Future[VSDFolder] = {
+  def addObjectToFolder(obj : VSDURL, folder: VSDFolder) : Future[VSDFolder] = {
     val channel = authChannel ~> unmarshal[VSDFolder]
-    val folderModel =  folder.copy(containedObjects = Some(folder.containedObjects.getOrElse(Seq[VSDURL]()) :+ VSDURL(obj.selfUrl)))
+    val folderModel =  folder.copy(containedObjects = Some(folder.containedObjects.getOrElse(Seq[VSDURL]()) :+ obj))
     channel(Put(s"$BASE_URL/folders",folderModel))
   }
 
@@ -305,9 +269,9 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   /**
    * removes a VSD object from an existing folder
    */
-  def removeObjectFromFolder(obj : VSDObjectInfo, folder: VSDFolder) : Future[VSDFolder]= {
+  def removeObjectFromFolder(obj : VSDURL, folder: VSDFolder) : Future[VSDFolder]= {
     val channel = authChannel ~> unmarshal[VSDFolder]
-    val r =  folder.containedObjects.getOrElse(Seq[VSDURL]()).filterNot(l => l == VSDURL(obj.selfUrl))
+    val r =  folder.containedObjects.getOrElse(Seq[VSDURL]()).filterNot(l => l == obj)
     val folderModel =  folder.copy(containedObjects = if (r.isEmpty) None else Some(r))
     channel(Put(s"$BASE_URL/folders",folderModel))
   }
@@ -341,7 +305,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     val downloadedObjsInFolderF = Future.sequence(folder.containedObjects.getOrElse(Seq[VSDURL]()).map { objURL =>
       for {
         info <- objInfoChannel(Get(objURL.selfUrl))
-        dl <- downloadVSDObject(VSDObjectID(info.id), tempDestination, s"VSD_${info.id}.zip").map(_.get)
+        dl <- downloadVSDObject(VSDURL(info.selfUrl), tempDestination, s"VSD_${info.id}.zip").map(_.get)
       } yield ((info, dl))
     })
 
@@ -362,9 +326,9 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   /**
    * Gets user information
    */
-  def getUserInfo(id: VSDUserID) : Future[VSDUser]= {
+  def getUserInfo(url : VSDURL) : Future[VSDUser]= {
     val channel = authChannel ~>  unmarshal[VSDUser]
-    channel(Get(s"$BASE_URL/users/${id.id}"))
+    channel(Get(url.selfUrl))
   }
 
   def shutdown(): Unit = {
@@ -383,6 +347,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    }
 
 
+
   /**
    * get link information
    **/
@@ -390,21 +355,14 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     val channel = authChannel ~> unmarshal[VSDLink] ; channel(Get(url.selfUrl))
   }
 
-  /**
-   * get link information
-   **/
-  def getLinkInfo(id : VSDLinkID) : Future[VSDLink] = {
-    val channel = authChannel ~> unmarshal[VSDLink] ; channel(Get(s"$BASE_URL/object-links/${id.id}"))
-  }
-
 
   /**
    * deletes an existing link
    **/
-  def deleteLink(id: VSDLinkID) : Future[Try[Unit]] = {
+  def deleteLink(url : VSDURL) : Future[Try[Unit]] = {
     val channel = authChannel
-    channel(Delete(s"$BASE_URL/object-links/${id.id}")).map { r =>
-      if (r.status.isSuccess) Success(()) else Failure(new Exception(s"failed to delete vsd link with id ${id}" + r.entity.toString()))
+    channel(Delete(url.selfUrl)).map { r =>
+      if (r.status.isSuccess) Success(()) else Failure(new Exception(s"failed to delete vsd link  ${url.selfUrl}" + r.entity.toString()))
     }
   }
 
@@ -437,9 +395,12 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
    * Publishes (validates) an object
    *
    */
-  def publishObject(id : VSDObjectID) : Future[VSDCommonObjectInfo] = {
+  def publishObject(url : VSDURL) : Future[VSDCommonObjectInfo] = {
     val channel = authChannel ~>  unmarshal[VSDCommonObjectInfo]
-    channel(Put(s"$BASE_URL/objects/${id.id}/publish"))
+    for {
+      info <-getVSDObjectInfo[VSDCommonObjectInfo](url)
+      res <- channel(Put(s"$BASE_URL/objects/${info.id}/publish"))
+    } yield res
   }
 
   /**

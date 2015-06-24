@@ -28,7 +28,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
   describe("VSD REST connection") {
 
-    val uploadedFile = scala.concurrent.promise[VSDFileID]
+    val uploadedFile = scala.concurrent.promise[VSDURL]
+
 
     it("can upload a single file") {
       println("sending file")
@@ -37,7 +38,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
       whenReady(r, timeout(Span(1, Minutes))) { resp =>
         resp match {
-          case s: Success[(VSDFileID, VSDObjectID)] => { uploadedFile.success(resp.get._1) }
+          case s: Success[FileUploadResponse] => { uploadedFile.success(resp.get.file) }
           case f: Failure[_] => { uploadedFile.failure(new Exception("Fail due to upload test fail")); fail("*** Download failed " + f.exception.printStackTrace) }
         }
       }
@@ -48,9 +49,9 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     }
 
     it("can download a single file (previously uploaded)") {
-      val fileId = Await.result(uploadedFile.future, Duration(2, MINUTES))
+      val fileurl = Await.result(uploadedFile.future, Duration(2, MINUTES))
       println("downloading file")
-      val dldFile = vsd.downloadFile(fileId, tmpDir, fileId.id.toString)
+      val dldFile = vsd.downloadFile(fileurl, tmpDir, "Dummy")
       whenReady(dldFile, timeout(Span(1, Minutes))) { f =>
         f match {
           case s: Success[File] => { assert(s.get.exists); s.get.delete }
@@ -59,7 +60,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val uploadedObject = scala.concurrent.promise[VSDObjectID]
+    val uploadedObject = scala.concurrent.promise[VSDURL]
 
     it("can upload a dicom directory ") {
 
@@ -119,7 +120,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
       val f = for {
         f1 <- vsd.updateVSDObjectInfo(newInfo, 4)
-        updatedInfo <- vsd.getVSDObjectInfo[VSDRawImageObjectInfo](VSDObjectID(i.id))
+        updatedInfo <- vsd.getVSDObjectInfo[VSDRawImageObjectInfo](VSDURL(i.selfUrl))
       } yield updatedInfo
 
       whenReady(f, timeout(Span(1, Minutes))) { s =>
@@ -158,25 +159,25 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     }
 
     val newObjInfo = scala.concurrent.promise[VSDObjectInfo]
-    val objOntoItemRelationId = scala.concurrent.promise[Int]
+    val objOntoItemRelation = scala.concurrent.promise[VSDObjectOntologyItem]
 
     it("can update the information of one object to be of a given ontology item") {
       val ontoItem = Await.result(ontologyItem.future, Duration(1, MINUTES))
       val oldObinf = Await.result(objInfo.future, Duration(1, MINUTES))
       println("updating object information to be of a certain ontology")
-      val newObjOntoItemF = vsd.createObjectOntologyItemRelation(oldObinf, VSDURL(ontoItem.selfUrl)) 
+      val newObjOntoItemF = vsd.createObjectOntologyItemRelation(VSDURL(oldObinf.selfUrl), VSDURL(ontoItem.selfUrl))
       whenReady(newObjOntoItemF, timeout(Span(2, Minutes))) { newObjOntoItem =>
         assert(newObjOntoItem.position === oldObinf.ontologyItemRelations.map(_.size).getOrElse(0))
-        objOntoItemRelationId.success(newObjOntoItem.id)
+        objOntoItemRelation.success(newObjOntoItem)
 
-        val f = vsd.getVSDObjectInfo[VSDRawImageObjectInfo](VSDObjectID(oldObinf.id))
+        val f = vsd.getVSDObjectInfo[VSDRawImageObjectInfo](VSDURL(oldObinf.selfUrl))
         f onSuccess { case i => newObjInfo.success(i) }
         f onFailure { case e => newObjInfo.failure(new Exception("Failed to fetch obj Info after adding ontology item " + e)) }
       }
       newObjOntoItemF onFailure {
         case e =>
           newObjInfo.failure(new Exception("Failed to create first ontology relation " + e))
-          objOntoItemRelationId.failure(new Exception("Failed to create first ontology relation " + e))
+          objOntoItemRelation.failure(new Exception("Failed to create first ontology relation " + e))
       }
     }
 
@@ -185,11 +186,11 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
     it("can update an object ontology relation") {
       val ontoItem = Await.result(ontologyItem2.future, Duration(1, MINUTES))
-      val objOntoItemRelId = Await.result(objOntoItemRelationId.future, Duration(1, MINUTES))
+      val objOntoItemRel = Await.result(objOntoItemRelation.future, Duration(1, MINUTES))
 
       val newInfo = Await.result(newObjInfo.future, Duration(1, MINUTES))
       println("updating object ontology relation")
-      val secondObjItemF = vsd.updateObjectOntologyItemRelation(objOntoItemRelId, newInfo, VSDURL(ontoItem.selfUrl))
+      val secondObjItemF = vsd.updateObjectOntologyItemRelation(objOntoItemRel, newInfo, VSDURL(ontoItem.selfUrl))
 
       whenReady(secondObjItemF, timeout(Span(2, Minutes))) { newObjOntoItem =>
         assert(newObjOntoItem.ontologyItem.selfUrl === ontoItem.selfUrl)
@@ -226,7 +227,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     it("can create a folder") {
       println("creating folder")
       val parentFolder = Await.result(myDatafolder.future, Duration(1, MINUTES))
-      val folderInfo = vsd.createFolder("unitTestFolder", parentFolder)
+      val folderInfo = vsd.createFolder("unitTestFolder", VSDURL(parentFolder.selfUrl))
       whenReady(folderInfo, timeout(Span(1, Minutes))) { i =>
         assert(i.name === "unitTestFolder")
         myCreatedfolder.success(i)
@@ -235,7 +236,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
     it("can retrieve correct info given a folder id") {
       val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
-      val queriedInfo = vsd.getFolderInfo(VSDFolderID(createdInfo.id))
+      val queriedInfo = vsd.getFolderInfo(VSDURL(createdInfo.selfUrl))
       whenReady(queriedInfo, timeout(Span(1, Minutes))) { i =>
         assert(i.selfUrl === createdInfo.selfUrl && i.name ==="unitTestFolder")
       }
@@ -247,7 +248,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
       val info = Await.result(objInfo.future, Duration(1, MINUTES))
 
-      val u = vsd.addObjectToFolder(info, createdInfo)
+      val u = vsd.addObjectToFolder(VSDURL(info.selfUrl), createdInfo)
       whenReady(u, timeout(Span(1, Minutes))) { f =>
         assert(f.containedObjects.get.contains(VSDURL(info.selfUrl)))
         addedToFolder.success(f)
@@ -273,7 +274,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val addedInfo = Await.result(addedToFolder.future, Duration(1, MINUTES))
       val info = Await.result(objInfo.future, Duration(1, MINUTES))
 
-      val u = vsd.removeObjectFromFolder(info, addedInfo)
+      val u = vsd.removeObjectFromFolder(VSDURL(info.selfUrl), addedInfo)
       whenReady(u, timeout(Span(1, Minutes))) { f =>
         assert(f.containedObjects.getOrElse(Seq[VSDURL]()).find(_ == VSDURL(info.selfUrl)) isEmpty)
       }
@@ -296,20 +297,14 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    it("can retrieve user info") {
-      val userInfo = vsd.getUserInfo(VSDUserID(1))
-      whenReady(userInfo, timeout(Span(1, Minutes))) { i => assert(i.username == "system") }
-    }
 
-
-    val object2P = scala.concurrent.promise[VSDObjectID]
+    val object2P = scala.concurrent.promise[VSDURL]
 
     it("can upload a nifti segmentation") {
       val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
       val path = getClass().getResource("/volume.nii").getPath
-      val idObj2F = vsd.sendFile(new File(path), 20).map { t => t.get._2}
+      val idObj2F = vsd.sendFile(new File(path), 20).map { t => t.get.relatedObject}
       whenReady(idObj2F, timeout(Span(2, Minutes))) { idObj2 =>
-        assert(idObj2.id > obj1Info.id)
         object2P.success(idObj2)
       }
     }
@@ -324,7 +319,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val fut = for {
         obj2Info <- vsd.getVSDObjectInfo[VSDSegmentationObjectInfo](obj2Id)
         link <- vsd.addLink(VSDURL(obj2Info.selfUrl), VSDURL(obj1Info.selfUrl))
-        lookedUpLink <- vsd.getLinkInfo(VSDLinkID(link.id))
+        lookedUpLink <- vsd.getLinkInfo(VSDURL(link.selfUrl))
       } yield {(lookedUpLink,obj2Info)}
 
       whenReady(fut, timeout(Span(4, Minutes))) { case (link, obj2) =>
@@ -361,14 +356,14 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val path = getClass().getResource("/torus.h5").getPath
       val statModelType = Await.result(statModelTypeP.future, Duration(1, MINUTES))
       val f = for {
-        s <- vsd.sendFile(new File(path),5).map { t => t.get._2}
+        s <- vsd.sendFile(new File(path),5).map { t => t.get.relatedObject}
         i <- vsd.getVSDObjectInfo[VSDStatisticalModelObjectInfo](s)
       } yield i
 
       whenReady(f, timeout(Span(2, Minutes))) { info =>
         assert(info.`type`.get == statModelType)
         // delete it immediately
-        vsd.deleteUnpublishedVSDObject(VSDObjectID(info.id))
+        vsd.deleteUnpublishedVSDObject(VSDURL(info.selfUrl))
       }
     }
 
@@ -391,8 +386,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
 
       val rightF = for {
-        user <- vsd.getUserInfo(VSDUserID(1))
-        r2 = println(user)
+        user <- vsd.getUserInfo(VSDURL("https://demo.virtualskeleton.ch/api/users/1"))
         r <- vsd.setObjectUserRights(VSDURL(obj1Info.selfUrl), VSDURL(user.selfUrl), Seq(VSDVisitRight))
       } yield r
 
@@ -413,7 +407,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
     it("can delete a link") {
       val link = Await.result(linkP.future, Duration(5, MINUTES))
-      val del = vsd.deleteLink(VSDLinkID(link.id))
+      val del = vsd.deleteLink(VSDURL(link.selfUrl))
       whenReady(del, timeout(Span(1, Minutes))) { u => assert(u.isSuccess) }
     }
 
@@ -438,7 +432,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
       //  Await.result(readyToCleanFolder.future, Duration(6, MINUTES))
 
-      val deletion = vsd.deleteFolder(VSDFolderID(createdInfo.id))
+      val deletion = vsd.deleteFolder(VSDURL(createdInfo.selfUrl))
       whenReady(deletion, timeout(Span(1, Minutes))) { r => assert(r.isSuccess) }
     }
 
