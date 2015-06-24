@@ -94,7 +94,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   /**
    * Downloads a file from the VSD given its downloadURL
    */
-  def downloadFile(url: VSDURL, downloadDir: File, fileName: String): Future[Try[File]] = {
+  def downloadFile(url: VSDURL, downloadDir: File, fileName: String): Future[File] = {
     if(!downloadDir.isDirectory) return Future.failed(new Exception("indicated destination directory is not a directory."))
     authChannel(Get(url.selfUrl)).map { r =>
       if (r.status.isSuccess) {
@@ -102,9 +102,9 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
         val os = new FileOutputStream(file)
         os.write(r.entity.data.toByteArray)
         os.close
-        Success(file)
+        file
       } else {
-        Failure(new Exception(r.message.toString))
+        throw new Exception(r.message.toString)
       }
     }
   }
@@ -200,7 +200,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   /**
    * Download of object is always shipped in one zip file
    */
-  def downloadVSDObject(url: VSDURL, downloadDir: File, fileName: String): Future[Try[File]] = {
+  def downloadVSDObject(url: VSDURL, downloadDir: File, fileName: String): Future[File] = {
       getVSDObjectInfo[VSDCommonObjectInfo](url).flatMap { info =>
         downloadFile(VSDURL(info.downloadUrl), downloadDir, fileName)
       }
@@ -306,7 +306,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
     val downloadedObjsInFolderF = Future.sequence(folder.containedObjects.getOrElse(Seq[VSDURL]()).map { objURL =>
       for {
         info <- objInfoChannel(Get(objURL.selfUrl))
-        dl <- downloadVSDObject(VSDURL(info.selfUrl), tempDestination, s"VSD_${info.id}.zip").map(_.get)
+        dl <- downloadVSDObject(VSDURL(info.selfUrl), tempDestination, s"VSD_${info.id}.zip")
       } yield ((info, dl))
     })
 

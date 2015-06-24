@@ -59,12 +59,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val fileurl = Await.result(uploadedFile.future, Duration(2, MINUTES))
       println("downloading file")
       val dldFile = vsd.downloadFile(fileurl, tmpDir, "Dummy")
-      whenReady(dldFile, timeout(Span(1, Minutes))) { f =>
-        f match {
-          case s: Success[File] => { assert(s.get.exists); s.get.delete }
-          case f: Failure[_] => fail("*** Download failed " + f.exception)
-        }
-      }
+      whenReady(dldFile, timeout(Span(1, Minutes))) { s => assert(s.exists); s.delete }
     }
 
     val uploadedObject = scala.concurrent.promise[VSDURL]
@@ -94,13 +89,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     it("can download a vsd object (previously uploaded)") {
       val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
       println("downloading vsd object")
-      val obj = vsd.downloadVSDObject(objId, tmpDir, s"object${objId}")
-      whenReady(obj, timeout(Span(1, Minutes))) { o =>
-        o match {
-          case s: Success[File] => { assert(s.get.exists); s.get.delete }
-          case f: Failure[_] => fail("*** Download failed " + f.exception)
-        }
-      }
+      val obj = vsd.downloadVSDObject(objId, tmpDir, "unitTestObject.zip")
+      whenReady(obj, timeout(Span(1, Minutes))) {s => assert(s.exists); s.delete }
     }
 
     val objInfo = scala.concurrent.promise[VSDRawImageObjectInfo]
