@@ -233,8 +233,6 @@ case class VSDGroup(id :Int, name: String, chief:Option[VSDURL], selfUrl: String
 object VSDJson {
 
   implicit val VSDURLProtocol : RootJsonFormat[VSDURL] = jsonFormat1(VSDURL.apply)
-//  implicit val VSDObjectIdProtocol : RootJsonFormat[VSDObjectID] = jsonFormat1(VSDObjectID.apply)
-//  implicit val VSDFileIdProtocol : RootJsonFormat[VSDFileID] = jsonFormat1(VSDFileID.apply)
   implicit val FileUploadResponseFormat  : RootJsonFormat[FileUploadResponse] = jsonFormat2(FileUploadResponse.apply)
   implicit val VSDRawImageObjectInfoProtocol : RootJsonFormat[VSDRawImageObjectInfo] = jsonFormat20(VSDRawImageObjectInfo)
   implicit val VSDSegmentationObjectInfoProtocol : RootJsonFormat[VSDSegmentationObjectInfo]= jsonFormat18(VSDSegmentationObjectInfo)

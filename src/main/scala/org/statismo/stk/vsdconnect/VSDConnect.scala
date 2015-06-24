@@ -25,8 +25,8 @@ import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
-/**
- * Simple upload of files based on Basic authentication
+/** *
+ * Class representing an authenticated session with the VSD. Once successfully created, all operations on the VSD can be performed by accessing methods of this class
  */
 
 class VSDConnect private (user: String, password: String, BASE_URL: String) {
@@ -34,11 +34,12 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   implicit val system = ActorSystem(s"VSDConnect-user-${user.replace("@", "-").replace(".", "-")}")
   import system.dispatcher
 
-  val log = Logging(system, getClass)
+  private val log = Logging(system, getClass)
   val authChannel =  addCredentials(BasicHttpCredentials(user, password)) ~> sendReceive
 
   /**
-   * This function returns the generated VSD file URL along with to which object it belongs (URL) or an exception in case the send failed
+   * Performs an file upload to the VSD
+   * @return the result of a file upload containing the generated VSD file URL along with to which object it belongs (URL) or an exception in case the send failed
    */
   def sendFile(f: File, nbRetrials: Int = 0): Future[Try[FileUploadResponse]] = {
 
@@ -60,25 +61,25 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   }
 
   /**
-   * This function sends all the related Dicom files in a class and returns the list of object ids
-   * that are associated with each uploaded file, or the exception for the files that failed
+   * Uploads the indicated folder's content to the VSD
+   * @return a (future) collection indicating for each contained file, whether the upload succeeded or not
    *
    */
-  def sendDICOMDirectoryDetailed(subjDir: File): Future[List[(String, Try[FileUploadResponse])]] = {
+  def sendDirectoryContentDetailed(subjDir: File): Future[List[(String, Try[FileUploadResponse])]] = {
     val listFiles = subjDir.listFiles
     val send = for (f <- listFiles) yield { sendFile(f, 2).map(t => (f.getAbsolutePath(), t)) }
     Future.sequence(send.toList)
   }
 
   /**
-   * This method uploads a Dicom directory, and returns if succeeded the list of VSD Object URLs created,
-   * or on failure, the list of files that failed to be uploaded
-   * *
+   * Uploads the indicated folder's content to the VSD, with a more summarized returned information on the success of the operation
+   * @return a Future containing either the list of VSD Object URLs created as a result of the upload, or the list of file names that failed to upload
+   *
    */
-  def sendDICOMDirectory(subjDir: File): Future[Either[List[String], List[VSDURL]]] = {
+  def sendDirectoryContent(subjDir: File): Future[Either[List[String], List[VSDURL]]] = {
 
     val summary = for {
-      detailed <- sendDICOMDirectoryDetailed(subjDir)
+      detailed <- sendDirectoryContentDetailed(subjDir)
 
       failedFiles = detailed.filter { case (_, t) => t.isFailure }.map(_._1)
       succeeded = detailed.filter { case (_, t) => t.isSuccess }
@@ -91,7 +92,7 @@ class VSDConnect private (user: String, password: String, BASE_URL: String) {
   }
 
   /**
-   * This method downloads a file from the VSD given its downloadURL
+   * Downloads a file from the VSD given its downloadURL
    */
   def downloadFile(url: VSDURL, downloadDir: File, fileName: String): Future[Try[File]] = {
     if(!downloadDir.isDirectory) return Future.failed(new Exception("indicated destination directory is not a directory."))

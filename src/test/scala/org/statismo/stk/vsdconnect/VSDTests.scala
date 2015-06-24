@@ -73,7 +73,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
       val path = getClass().getResource("/dicomdir/").getPath
       println("sending directory")
-      val r = vsd.sendDICOMDirectory(new File(path))
+      val r = vsd.sendDirectoryContent(new File(path))
 
       whenReady(r, timeout(Span(1, Minutes))) { s =>
         if (s.isLeft) {
