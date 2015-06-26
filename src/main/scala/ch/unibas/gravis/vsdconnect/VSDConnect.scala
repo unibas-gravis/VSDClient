@@ -42,7 +42,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
    * Uploads a file to the VSD
    * @return the result of a file upload containing the generated VSD file URL along with to which object it belongs (URL) or an exception in case the send failed
    */
-  def sendFile(f: File, nbRetrials: Int = 0): Future[Try[FileUploadResponse]] = {
+  def sendFile(f: File, nbRetrials: Int = 0): Future[FileUploadResponse] = {
 
     val pipe = authChannel ~> unmarshal[FileUploadResponse]
     val bArray = Files.readAllBytes(f.toPath)
@@ -51,15 +51,13 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
         HttpEntity(ContentType(MediaTypes.`multipart/form-data`), bArray),
         HttpHeaders.`Content-Disposition`("form-data", Map("filename" -> (f.getName /*+ ".dcm"*/))) :: Nil))))
 
-    val t = pipe(req) map { r => Success(r) }
+    val t = pipe(req)
     t.recoverWith {
       case e =>
         if (nbRetrials > 0) {
           println(s"Retrying file ${f.getName}, nb Retries left ${nbRetrials}")
           sendFile(f, nbRetrials - 1)
-        } else Future {
-          Failure(e)
-        } // the final recover after all retrials failed
+        } else Future { throw e } // the final recover after all retrials failed
     }
   }
 
@@ -71,7 +69,8 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
   def sendDirectoryContentDetailed(subjDir: File): Future[List[(String, Try[FileUploadResponse])]] = {
     val listFiles = subjDir.listFiles
     val send = for (f <- listFiles) yield {
-      sendFile(f, 2).map(t => (f.getAbsolutePath(), t))
+      val sendF = sendFile(f, 2).map(t => (f.getAbsolutePath, Success(t)))
+      sendF.recover{ case e =>  (f.getAbsolutePath, Failure(e)) }
     }
     Future.sequence(send.toList)
   }

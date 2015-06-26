@@ -43,16 +43,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val path = getClass().getResource("/dicomdir/1.2.840.113704.1.111.3216.1302961430.63764.dcm").getPath
       val r = vsd.sendFile(new File(path), 5)
 
-      whenReady(r, timeout(Span(1, Minutes))) { resp =>
-        resp match {
-          case s: Success[FileUploadResponse] => { uploadedFile.success(resp.get.file) }
-          case f: Failure[_] => { uploadedFile.failure(new Exception("Fail due to upload test fail")); fail("*** Download failed " + f.exception.printStackTrace) }
-        }
-      }
+      whenReady(r, timeout(Span(1, Minutes))) { resp =>  uploadedFile.success(resp.file)}
 
-      r onFailure {
-        case s: ConnectionException => fail("Connection problem. This could be due to a self-signed certifcate. Please download the certificate from the VSD webserver and add it to the JVM's keychain")
-      }
     }
 
     it("can download a single file (previously uploaded)") {
@@ -300,7 +292,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     it("can upload a nifti segmentation") {
       val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
       val path = getClass().getResource("/volume.nii").getPath
-      val idObj2F = vsd.sendFile(new File(path), 20).map { t => t.get.relatedObject}
+      val idObj2F = vsd.sendFile(new File(path), 20).map { t => t.relatedObject}
       whenReady(idObj2F, timeout(Span(2, Minutes))) { idObj2 =>
         object2P.success(idObj2)
       }
@@ -353,7 +345,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val path = getClass().getResource("/torus.h5").getPath
       val statModelType = Await.result(statModelTypeP.future, Duration(1, MINUTES))
       val f = for {
-        s <- vsd.sendFile(new File(path),5).map { t => t.get.relatedObject}
+        s <- vsd.sendFile(new File(path),5).map { t => t.relatedObject}
         i <- vsd.getVSDObjectInfo[VSDStatisticalModelObjectInfo](s)
       } yield i
 
