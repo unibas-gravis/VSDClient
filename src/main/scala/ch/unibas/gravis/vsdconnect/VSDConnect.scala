@@ -8,8 +8,8 @@ import akka.event.Logging
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout.durationToTimeout
+import ch.unibas.gravis.vsdconnect.VSDJson._
 import org.apache.commons.io.FileUtils
-import VSDJson._
 import spray.can.Http
 import spray.client.pipelining
 import spray.client.pipelining._
@@ -114,30 +114,30 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     }
   }
 
-  /** *
+  /**
     * Retrieves information about the indicated object
     * @param url object's identifying URL
     * @tparam A expected type of Object information to be retrieved.Depending on the type of the object, this might be a [[VSDCommonObjectInfo]], [[VSDRawImageObjectInfo]], [[VSDSegmentationObjectInfo]], etc ..
     *
     *           For Java users, this method requires indicating one additional parameter (instead of the type parameter) that is the protocol for JSON serialization/deserialization of the expected returned information.
-    *           This protocol variable can be found in the [[VSDJson]] object. For example, [[VSDJson.VSDCommonObjectInfoProtocol()]] is the required formatter for [[VSDCommonObjectInfo]] information.
+    *           This protocol variable can be found in the [[VSDJson]] object. For example, [[VSDJson.VSDCommonObjectInfoProtocol]] is the required formatter for [[VSDCommonObjectInfo]] information.
     **/
   def getVSDObjectInfo[A <: VSDObjectInfo : RootJsonFormat](url: VSDURL): Future[A] = {
     val pipe = authChannel ~> unmarshal[A]
     pipe(Get(url.selfUrl))
   }
 
-  /** *
+  /**
     * Updates the information about a VSD object
     * @param info object's already updated information
     * @tparam A expected type of Object information to be updated. Depending on the type of the object, this might be a [[VSDCommonObjectInfo]], [[VSDRawImageObjectInfo]], [[VSDSegmentationObjectInfo]], etc ..
     *
     *           For Java users, this method requires indicating one additional parameter (instead of the type parameter) that is the protocol for JSON serialization/deserialization of the expected returned information.
-    *           This protocol variable can be found in the [[VSDJson]] object. For example, [[VSDJson.VSDCommonObjectInfoProtocol()]] is the required formatter for [[VSDCommonObjectInfo]] information.
+    *           This protocol variable can be found in the [[VSDJson]] object. For example, [[VSDJson.VSDCommonObjectInfoProtocol]] is the required formatter for [[VSDCommonObjectInfo]] information.
     **/
-  def updateVSDObjectInfo[A <: VSDObjectInfo : RootJsonFormat](info: A, nbRetrials: Int = 0): Future[Try[HttpResponse]] = {
+  def updateVSDObjectInfo[A <: VSDObjectInfo : RootJsonFormat](info: A, nbRetrials: Int = 0): Future[Try[Unit]] = {
 
-    val resp = authChannel(Put(s"$BASE_URL/objects/${info.id}", info)).map { s => Success(s) }
+    val resp = authChannel(Put(s"$BASE_URL/objects/${info.id}", info)).map { s => Success(()) }
     resp.recoverWith {
       case e =>
         if (nbRetrials > 0) {
