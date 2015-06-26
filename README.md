@@ -141,7 +141,7 @@ Checkout the documentation of [Scala Either](http://www.scala-lang.org/api/rc2/s
 
 Important : This method does NOT create a folder into the VSD. It simply uploads the content of a folder on your file system.
 
-#### Listing content on the VSD : 
+### Listing content on the VSD : 
 ##### For objects 
 ```scala
 val listUnpublished  = vsd.listUnpublishedObjects() // lists unpublished objects 
@@ -166,7 +166,7 @@ val folder : Future[VSDFolder] = vsd.getFolderFromPath( "/userName/MyProjects/ex
 This will return the information about the folder if it exists.
 
 
-#### Download
+### Download
 
 ##### For objects : 
 
@@ -244,4 +244,4 @@ To learn more about those, please check the API doc of the methods of VSDConnect
 
 ## Copyright and License
 
-Copyright, University of Basel, 2015. 
+Copyright, University of Basel, 2015.
