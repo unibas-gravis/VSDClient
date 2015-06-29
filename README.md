@@ -19,13 +19,9 @@ Although the library is written in [Scala](http://www.scala-lang.org/) (which of
 
 To use VSDConnect in your own project, you can either : add the following lines to your build.sbt
 ```
-resolvers ++= Seq(
-          "shapemodelling unibas" at "http://shapemodelling.cs.unibas.ch/repository/public"
-          )
-
 libraryDependencies  ++= Seq(
             // other dependencies here
-            "ch.unibas.cs.gravis" %% "vsdconnect" % "0.7.+",            
+            "ch.unibas.cs.gravis" %% "vsdconnect" % "0.7.+"            
 )
 ```
 
@@ -49,7 +45,7 @@ While VSDConnect is already usable for most common tasks on the VSD such as uplo
 
 If you find VSDConnect useful for your work, you can help us to make it more complete by implementing missing features, in particular actions that reveal to be recurrent and could be added to the API.
 
-We are also always grateful if you report bugs or if give us feedback on how you use VSDConnect in your work and how you think we can improve it. 
+We are also always grateful if you report bugs or give us feedback on how you use VSDConnect in your work and how you think we can improve it. 
 
 ## Maintainers
 The project is currently developed and maintained by the Graphics and Vision Research group, University of Basel. 
@@ -71,7 +67,7 @@ val vsd = VSDConnect("login", "password").get
 ```
 This call will succeed only if the credentials are valid. Once you obtained such a VSDConnect instance, all of your interaction with the VSD can be done via the methods of this object.
 
-In case you do not wish to write your credentials into the code directly, you can use another factory method for the VSDConnect object, taking as a parameter a credentials file. This is a normal containing the login on the first line and the password on the second. You can then change the rights on the credentials file to be its only reader.
+In case you do not wish to write your credentials into the code directly, you can use another factory method for the VSDConnect object, taking as a parameter a credentials file. This is a normal file containing the login on the first line and the password on the second. You can then change the rights on the credentials file to be its only reader.
 
 
 ### Interactions with the VSD : Handling Asynchronicity
@@ -156,7 +152,7 @@ val dirs :Future[Array[VSDFolder]] = vsd.listFolders()
 ```
 This returns a list of informations about all the folders of the user on the VSD. Notice that this does not have hierarchical bounds and will return each and every sub-folder of a sub-folder.
 
-The folder information of type VSDFolder contains information about the hierarchy-level, parent directory and contained sub-folders and objects
+The folder information of type VSDFolder contains information about the hierarchy-level, parent directory and contained sub-folders and objects.
 
 In addition to the global list, information about a folder can be obtained by specifying the hierarchical path as seen on the VSD : 
 
@@ -170,7 +166,7 @@ This will return the information about the folder if it exists.
 
 ##### For objects : 
 
-Once you have the url of an object you wish to download (obtained by either listing contents or folders) : 
+Once you have the download url of an object you wish to download (obtained by either listing contents or folders) : 
 
 ```scala
 val objFile : Future[File] = vsd.downloadVSDObject(objectURL, destinationDir, "objectName.zip")
