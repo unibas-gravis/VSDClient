@@ -36,7 +36,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     it("can upload a single file") {
       println("sending file")
       val path = getClass().getResource("/dicomdir/1.2.840.113704.1.111.3216.1302961430.63764.dcm").getPath
-      val r = vsd.sendFile(new File(path), 5)
+      val r = vsd.uploadFile(new File(path), 5)
 
       whenReady(r, timeout(Span(1, Minutes))) { resp =>  uploadedFile.success(resp.file)}
 
@@ -55,7 +55,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
       val path = getClass().getResource("/dicomdir/").getPath
       println("sending directory")
-      val r = vsd.sendDirectoryContent(new File(path))
+      val r = vsd.uploadDirectoryContent(new File(path))
 
       whenReady(r, timeout(Span(1, Minutes))) { s =>
         if (s.isLeft) {
@@ -287,7 +287,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     it("can upload a nifti segmentation") {
       val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
       val path = getClass().getResource("/volume.nii").getPath
-      val idObj2F = vsd.sendFile(new File(path), 20).map { t => t.relatedObject}
+      val idObj2F = vsd.uploadFile(new File(path), 20).map { t => t.relatedObject}
       whenReady(idObj2F, timeout(Span(2, Minutes))) { idObj2 =>
         object2P.success(idObj2)
       }
@@ -340,7 +340,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val path = getClass().getResource("/torus.h5").getPath
       val statModelType = Await.result(statModelTypeP.future, Duration(1, MINUTES))
       val f = for {
-        s <- vsd.sendFile(new File(path),5).map { t => t.relatedObject}
+        s <- vsd.uploadFile(new File(path),5).map { t => t.relatedObject}
         i <- vsd.getVSDObjectInfo[VSDStatisticalModelObjectInfo](s)
       } yield i
 

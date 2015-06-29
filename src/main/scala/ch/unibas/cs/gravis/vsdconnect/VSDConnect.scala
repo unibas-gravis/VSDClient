@@ -42,7 +42,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
    * Uploads a file to the VSD
    * @return the result of a file upload containing the generated VSD file URL along with to which object it belongs (URL) or an exception in case the send failed
    */
-  def sendFile(f: File, nbRetrials: Int = 0): Future[FileUploadResponse] = {
+  def uploadFile(f: File, nbRetrials: Int = 0): Future[FileUploadResponse] = {
 
     val pipe = authChannel ~> unmarshal[FileUploadResponse]
     val bArray = Files.readAllBytes(f.toPath)
@@ -56,7 +56,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
       case e =>
         if (nbRetrials > 0) {
           println(s"Retrying file ${f.getName}, nb Retries left ${nbRetrials}")
-          sendFile(f, nbRetrials - 1)
+          uploadFile(f, nbRetrials - 1)
         } else Future { throw e } // the final recover after all retrials failed
     }
   }
@@ -66,10 +66,10 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
    * @return a (future) collection indicating for each contained file, whether the upload succeeded or not
    *
    */
-  def sendDirectoryContentDetailed(subjDir: File): Future[List[(String, Try[FileUploadResponse])]] = {
+  def uploadDirectoryContentDetailed(subjDir: File): Future[List[(String, Try[FileUploadResponse])]] = {
     val listFiles = subjDir.listFiles
     val send = for (f <- listFiles) yield {
-      val sendF = sendFile(f, 2).map(t => (f.getAbsolutePath, Success(t)))
+      val sendF = uploadFile(f, 2).map(t => (f.getAbsolutePath, Success(t)))
       sendF.recover{ case e =>  (f.getAbsolutePath, Failure(e)) }
     }
     Future.sequence(send.toList)
@@ -80,10 +80,10 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
    * @return a Future containing either the list of VSD Object URLs created as a result of the upload, or the list of file names that failed to upload
    *
    */
-  def sendDirectoryContent(subjDir: File): Future[Either[List[String], List[VSDURL]]] = {
+  def uploadDirectoryContent(subjDir: File): Future[Either[List[String], List[VSDURL]]] = {
 
     val summary = for {
-      detailed <- sendDirectoryContentDetailed(subjDir)
+      detailed <- uploadDirectoryContentDetailed(subjDir)
 
       failedFiles = detailed.filter { case (_, t) => t.isFailure }.map(_._1)
       succeeded = detailed.filter { case (_, t) => t.isSuccess }
