@@ -1,4 +1,4 @@
-package ch.unibas.gravis.vsdconnect
+package ch.unibas.cs.gravis.vsdconnect
 
 import spray.json._
 import DefaultJsonProtocol._

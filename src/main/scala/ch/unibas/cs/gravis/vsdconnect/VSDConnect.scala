@@ -1,4 +1,4 @@
-package ch.unibas.gravis.vsdconnect
+package ch.unibas.cs.gravis.vsdconnect
 
 import java.io.{File, FileOutputStream}
 import java.nio.file.Files
@@ -8,7 +8,7 @@ import akka.event.Logging
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout.durationToTimeout
-import ch.unibas.gravis.vsdconnect.VSDJson._
+import VSDJson._
 import org.apache.commons.io.FileUtils
 import spray.can.Http
 import spray.client.pipelining

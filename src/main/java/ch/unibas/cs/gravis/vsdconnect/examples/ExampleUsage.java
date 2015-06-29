@@ -1,6 +1,6 @@
-package ch.unibas.gravis.vsdconnect.examples;
+package ch.unibas.cs.gravis.vsdconnect.examples;
 
-import ch.unibas.gravis.vsdconnect.*;
+import ch.unibas.cs.gravis.vsdconnect.*;
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 
