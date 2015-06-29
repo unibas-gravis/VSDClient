@@ -1,20 +1,15 @@
 package ch.unibas.cs.gravis.vsdconnect
 
-import org.specs2.matcher.ShouldMatchers
-import org.scalatest.FunSpec
-import akka.event.Logging
-import akka.actor.ActorSystem
 import java.io.File
+
+import org.scalatest.{FunSpec, _}
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.time.{Minutes, Span}
 import spray.can.Http.ConnectionException
-import scala.util.Failure
-import scala.util.Success
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import org.scalatest._
-import matchers.ShouldMatchers._
-import java.util.concurrent._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Span, Seconds, Minutes}
+import scala.util.Success
 
 /** *
   * This unit test suite has for objective to test the good functioning of the client and its compatibility with
