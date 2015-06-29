@@ -8,7 +8,7 @@ import akka.event.Logging
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout.durationToTimeout
-import VSDJson._
+import ch.unibas.cs.gravis.vsdconnect.VSDJson._
 import org.apache.commons.io.FileUtils
 import spray.can.Http
 import spray.client.pipelining
@@ -444,6 +444,15 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     paginationRecursion(s"$BASE_URL/modalities", 3, channel, 3)
   }
 
+
+  /**
+   * Get a specific modality
+   */
+  def getModality(url : VSDURL) : Future[VSDModality] = {
+    val channel = authChannel ~> unmarshal[VSDModality];
+    channel(Get(url.selfUrl))
+  }
+
   /**
    * Lists supported segmentation method
    */
@@ -566,11 +575,11 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
  */
 object VSDConnect {
 
-
   private def connect(username: String, password: String, BASE_URL: String): Try[VSDConnect] = {
-    import system.dispatcher
     val conn = new VSDConnect(username, password, BASE_URL)
     implicit val system = conn.system
+    implicit val ex = system.dispatcher
+
     conn.authChannel(Get(s"$BASE_URL/objects/unpublished/")).map { r =>
       if (r.status.isSuccess) {
         Success(conn)
