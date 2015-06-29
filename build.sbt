@@ -4,16 +4,16 @@ version       := "0.7.11"
 
 name := "vsdconnect"
 
-scalaVersion  := "2.10.3"
+scalaVersion  := "2.10.5"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
-resolvers ++= Seq(
-  "spray repo" at "http://repo.spray.io/"
-)
+//resolvers ++= Seq(
+//  "spray repo" at "http://repo.spray.io/"
+//)
 
 libraryDependencies ++= {
-  val sprayV = "1.1.0"
+  val sprayV = "1.3.1"
   Seq(
     "io.spray"            %%  "spray-json"     % "1.2.5",
     "io.spray"            %   "spray-client"     % sprayV withSources(),
