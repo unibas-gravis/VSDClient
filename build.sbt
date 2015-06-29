@@ -1,8 +1,8 @@
-organization  := "org.statismo"
+organization  := "ch.unibas.cs.gravis"
 
-version       := "0.1"
+version       := "0.7.11"
 
-name := "stkvsdconnect"
+name := "vsdconnect"
 
 scalaVersion  := "2.10.3"
 
