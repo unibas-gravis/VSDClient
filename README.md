@@ -21,7 +21,7 @@ To use VSDConnect in your own project, you can either : add the following lines 
 ```
 libraryDependencies  ++= Seq(
             // other dependencies here
-            "ch.unibas.cs.gravis" %% "vsdconnect" % "0.7.+"            
+            "ch.unibas.cs.gravis" %% "vsdconnect" % "0.1.+"
 )
 ```
 

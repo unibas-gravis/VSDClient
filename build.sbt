@@ -1,6 +1,6 @@
 organization  := "ch.unibas.cs.gravis"
 
-version       := "0.7.11"
+version       := "0.1.0"
 
 name := "vsdconnect"
 
