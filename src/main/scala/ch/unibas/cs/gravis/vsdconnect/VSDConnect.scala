@@ -181,7 +181,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
    */
   def listOntologyItemsForType(typ: Int, nbRetrialsPerPage: Int = 3): Future[Array[VSDOntologyItem]] = {
     val channel = authChannel ~> unmarshal[VSDPaginatedList[VSDOntologyItem]]
-    paginationRecursion(s"$BASE_URL/ontologies/${typ}/", nbRetrialsPerPage, channel, nbRetrialsPerPage)
+    paginationRecursion(s"$BASE_URL/ontologies/${typ}?rpp=500", nbRetrialsPerPage, channel, nbRetrialsPerPage)
   }
 
   /**
