@@ -567,6 +567,20 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     matchingPathsF.map { matchingPaths => matchingPaths.find(pair => pair._2 == path).map(_._1) }
   }
 
+  /**
+   * Returns a list of ontology items containing the given string
+   *
+   */
+
+  def findOntologyItemsContaining(string: String) : Future[IndexedSeq[VSDOntologyItem]] = {
+    for {
+      ontologies <- listOntologies()
+      filteredOntologyItems <- Future.sequence(ontologies.types.toIndexedSeq.map { o =>
+         listOntologyItemsForType(o.key)
+      }).map(_.flatten.filter(it => it.term.contains(string)))
+    } yield filteredOntologyItems
+  }
+
 
 }
 
