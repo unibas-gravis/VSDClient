@@ -1,7 +1,8 @@
 package ch.unibas.cs.gravis.vsdconnect
 
-import java.io.{File, FileOutputStream}
+import java.io.{FileInputStream, File, FileOutputStream}
 import java.nio.file.Files
+import java.util.zip.{ZipEntry, ZipInputStream}
 
 import akka.actor.ActorSystem
 import akka.event.Logging
@@ -94,6 +95,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
 
     summary
   }
+
 
   /**
    * Downloads a file from the VSD given its downloadURL.
@@ -254,12 +256,57 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
   }
 
 
+  private def unZipIt(zipFile: File, outputFolder: File): File = {
+
+    val buffer = new Array[Byte](1024)
+
+    //zip file content
+    val zis: ZipInputStream = new ZipInputStream(new FileInputStream(zipFile));
+    //get the zipped file list entry
+    var ze: ZipEntry = zis.getNextEntry();
+
+    val unzippedDir = new File(outputFolder + File.separator +  ze.getName.split(File.separator).head)
+
+    while (ze != null) {
+
+      val fileName = ze.getName();
+      val newFile = new File(outputFolder + File.separator + fileName);
+
+      //create folders
+      new File(newFile.getParent()).mkdirs();
+
+      val fos = new FileOutputStream(newFile);
+
+      var len: Int = zis.read(buffer);
+
+      while (len > 0) {
+
+        fos.write(buffer, 0, len)
+        len = zis.read(buffer)
+      }
+
+      fos.close()
+      ze = zis.getNextEntry()
+    }
+
+    zis.closeEntry()
+    zis.close()
+    unzippedDir
+  }
+
   /**
    * Downloads the indicated VSD object into the indicated directory. Objects downloaded from the VSD are always shipped as Zip files
    */
-  def downloadVSDObject(url: VSDURL, downloadDir: File, fileName: String): Future[File] = {
-    getVSDObjectInfo[VSDCommonObjectInfo](url).flatMap { info =>
-      downloadFile(VSDURL(info.downloadUrl), downloadDir, fileName)
+  def downloadVSDObject(url: VSDURL, downloadDir: File): Future[File] = {
+    val r = getVSDObjectInfo[VSDCommonObjectInfo](url).flatMap { info =>
+      downloadFile(VSDURL(info.downloadUrl), downloadDir, "temporaryVSDobj.zip")
+    }
+
+    r.map { f =>
+      Try {unZipIt(f,downloadDir) } match {
+        case Success(s) => f.delete; s
+        case Failure(e) => f.delete; throw new Exception("failed to unzip downloaded object : " + e.getMessage)
+      }
     }
   }
 
@@ -372,7 +419,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     val downloadedObjsInFolderF = Future.sequence(folder.containedObjects.getOrElse(Seq[VSDURL]()).map { objURL =>
       for {
         info <- objInfoChannel(Get(objURL.selfUrl))
-        dl <- downloadVSDObject(VSDURL(info.selfUrl), tempDestination, s"VSD_${info.id}.zip")
+        dl <- downloadVSDObject(VSDURL(info.selfUrl), tempDestination)
       } yield ((info, dl))
     })
 

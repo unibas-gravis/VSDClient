@@ -28,6 +28,16 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
   import VSDJson._
 
+  private def recursiveDirDelete(dir: File): Unit = {
+    if(dir.isDirectory){
+      dir.listFiles().foreach{ f =>
+        if(f.isDirectory) recursiveDirDelete(f) else f.delete
+      }
+    }
+    dir.delete
+  }
+
+
   describe("VSD REST connection") {
 
     val uploadedFile = scala.concurrent.promise[VSDURL]
@@ -76,8 +86,13 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     it("can download a vsd object (previously uploaded)") {
       val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
       println("downloading vsd object")
-      val obj = vsd.downloadVSDObject(objId, tmpDir, "unitTestObject.zip")
-      whenReady(obj, timeout(Span(1, Minutes))) {s => assert(s.exists); s.delete }
+      val obj = vsd.downloadVSDObject(objId, tmpDir)
+      whenReady(obj, timeout(Span(1, Minutes))) {s =>
+        assert(s.exists)
+        assert(s.isDirectory) // verify unzipping worked
+        s.listFiles.map(_.delete)
+        s.delete
+      }
     }
 
     val objInfo = scala.concurrent.promise[VSDRawImageObjectInfo]
@@ -190,10 +205,10 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     }
 
 
-    it("can list published objects") {
-      val l = vsd.listPublishedObjects()
-      whenReady(l, timeout(Span(1, Minutes))) { v =>   assert(v.size > 0) }
-    }
+//    it("can list published objects") {
+//      val l = vsd.listPublishedObjects()
+//      whenReady(l, timeout(Span(1, Minutes))) { v =>   assert(v.size > 0) }
+//    }
 
 
     val myDatafolder = scala.concurrent.promise[VSDFolder]
@@ -247,9 +262,14 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val r = vsd.downloadFolder(folderInf, dest)
 
       whenReady(r, timeout(Span(4, Minutes))) { f =>
+
         assert(f(0)._1.id === info.id)
         val fil = new File(f(0)._2.getAbsolutePath)
         assert(fil.exists())
+
+        // clean up directory
+        recursiveDirDelete(f(0)._2.getParentFile)
+        assert(true)
       }
     }
 
