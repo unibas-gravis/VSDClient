@@ -1,6 +1,6 @@
 package ch.unibas.cs.gravis.vsdconnect
 
-import java.io.{FileInputStream, File, FileOutputStream}
+import java.io.{File, FileInputStream, FileOutputStream}
 import java.nio.file.Files
 import java.util.zip.{ZipEntry, ZipInputStream}
 
@@ -38,6 +38,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
 
   private val log = Logging(system, getClass)
   val authChannel = addCredentials(BasicHttpCredentials(user, password)) ~> sendReceive
+  val objInfoChannel = authChannel ~> unmarshal[VSDCommonObjectInfo]
 
   /**
    * Uploads a file to the VSD
@@ -299,7 +300,9 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
    */
   def downloadVSDObject(url: VSDURL, downloadDir: File): Future[File] = {
     val r = getVSDObjectInfo[VSDCommonObjectInfo](url).flatMap { info =>
-      downloadFile(VSDURL(info.downloadUrl), downloadDir, "temporaryVSDobj.zip")
+      val f = File.createTempFile("temporaryVSDobj", ".zip")
+      val name = f.getName ; f.delete
+      downloadFile(VSDURL(info.downloadUrl), downloadDir, name)
     }
 
     r.map { f =>
@@ -387,6 +390,25 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     channel(Put(s"$BASE_URL/folders", folderModel))
   }
 
+  /**
+   * Introduced this recursive download at some point to avoid using Future.sequence that triggers all file downloads in parallel and
+   * can result in too much overhead for the server and potential timeouts.
+   *
+   * This has however the disadvantage of making operations such as downloading a folder much slower as it is now done sequentially
+   * */
+  private def sequentialObjectDownload(urlList : Seq[VSDURL], tempDirectory : File, partialRes : Seq[(VSDCommonObjectInfo, File)] ):  Future[Seq[(VSDCommonObjectInfo, File)]] = {
+    if(urlList.isEmpty == false) {
+      val url = urlList.head
+      println("downloading object " + url)
+      for{
+        info <- objInfoChannel(Get(url.selfUrl))
+        dl <- downloadVSDObject(url, tempDirectory)
+        others <- sequentialObjectDownload(urlList.tail, tempDirectory, partialRes :+ (info, dl) )
+      } yield others
+
+    }
+    else Future.successful(partialRes)
+  }
 
   /**
    * Downloads the content of the folder to the indicated File destination. If the destination folder already exists in the file system, the function will abort,
@@ -399,7 +421,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
    **/
   def downloadFolder(folder: VSDFolder, destination: File): Future[Seq[(VSDCommonObjectInfo, File)]] = {
     val infoChannel = authChannel ~> unmarshal[VSDFolder]
-    val objInfoChannel = authChannel ~> unmarshal[VSDCommonObjectInfo]
+
 
     if (destination.isDirectory()) return Future.failed(new Exception("Indicated folder already exists"))
 
@@ -407,7 +429,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     tempDestination.delete();
     tempDestination.mkdir()
 
-    // If any subdirectories, we recurse first
+     // If any subdirectories, we recurse first
     val downloadedObjsInSubdirsF = Future.sequence(folder.childFolders.getOrElse(Seq[VSDURL]()).map { sub =>
       for {
         info <- infoChannel(Get(sub.selfUrl))
@@ -416,12 +438,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     }).map(_.flatten)
 
     // now download the objects contained in the file itself
-    val downloadedObjsInFolderF = Future.sequence(folder.containedObjects.getOrElse(Seq[VSDURL]()).map { objURL =>
-      for {
-        info <- objInfoChannel(Get(objURL.selfUrl))
-        dl <- downloadVSDObject(VSDURL(info.selfUrl), tempDestination)
-      } yield ((info, dl))
-    })
+    val downloadedObjsInFolderF = sequentialObjectDownload(folder.containedObjects.getOrElse(Seq[VSDURL]()), tempDestination, Seq[(VSDCommonObjectInfo, File)]())
 
     for {
       downloadedObjsInSubdirs <- downloadedObjsInSubdirsF

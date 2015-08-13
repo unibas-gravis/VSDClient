@@ -439,7 +439,6 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val deletion = vsd.deleteFolder(VSDURL(createdInfo.selfUrl))
       whenReady(deletion, timeout(Span(1, Minutes))) { r => assert(r.isSuccess) }
     }
-    
 
   }
 
