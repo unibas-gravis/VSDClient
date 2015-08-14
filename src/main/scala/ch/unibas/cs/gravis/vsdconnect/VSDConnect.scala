@@ -422,7 +422,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
    *
    * This has however the disadvantage of making operations such as downloading a folder much slower as it is now done sequentially
    * */
-  private def sequentialObjectDownload(urlList : Seq[VSDURL], tempDirectory : File, partialRes : Seq[(VSDCommonObjectInfo, File)] ):  Future[Seq[(VSDCommonObjectInfo, File)]] = {
+   private def sequentialObjectDownload(urlList : Seq[VSDURL], tempDirectory : File, partialRes : Seq[(VSDCommonObjectInfo, File)] ):  Future[Seq[(VSDCommonObjectInfo, File)]] = {
     if(urlList.isEmpty == false) {
       val url = urlList.head
       println("downloading object " + url)
@@ -436,12 +436,24 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     else Future.successful(partialRes)
   }
 
+  /** *
+    * This method is intended as an alternative to Future.sequence(vsd.downloadVSDObject(..)). In better words, this takes a list of VSDURLs
+    * and download the corresponding objects ONE by ONE and stops at the first failure. In contrast, Future.sequence, would trigger all download Futures
+    * in parallel which might result in a too heavy load and eventually timeouts.
+    *
+    *
+    * @return list of downloaded objects informations and corresponding file.
+    */
+  def sequentiallyDownloadObjects(urlList : Seq[VSDURL], destDirectory : File):  Future[Seq[(VSDCommonObjectInfo, File)]] = {
+    sequentialObjectDownload(urlList, destDirectory, Seq[(VSDCommonObjectInfo, File)]())
+  }
+
   /**
    * Downloads the content of the folder to the indicated File destination. If the destination folder already exists in the file system, the function will abort,
    * in order to avoid overwriting existing data.
    * In case the VSD folder contains sub-folders, this call will result in a recursion
    *
-   * @return List of downloaded VSDObjectIDs along with their corresponding File.
+   * @return List of downloaded VSDObjectInfos along with their corresponding File.
    *
    *         The downloaded files are first stored in a temporary directory, and only on success of all files moved to the indicated destination.
    **/
