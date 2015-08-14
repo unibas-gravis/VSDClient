@@ -331,6 +331,15 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     channel(Get(url.selfUrl))
   }
 
+  /**
+   * Gets object ontology item relation
+   */
+  def getObjectOntologyItem (url: VSDURL): Future[VSDObjectOntologyItem] = {
+    val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
+    channel(Get(url.selfUrl))
+  }
+
+
 
   private def createFolder(name: String, parentFolder: VSDFolder): Future[VSDFolder] = {
     val channel = authChannel ~> unmarshal[VSDFolder]
