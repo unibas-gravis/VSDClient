@@ -313,6 +313,22 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     }
   }
 
+  /**
+   * Returns a string indicating the anatomical side of the VSDObject.
+   * Possible values : Right, Left, None if the object is unique
+   * */
+  def getAnatomicalSide(objUrl: VSDURL): Future[Option[String]] = {
+    for {
+      info <- getVSDObjectInfo[VSDCommonObjectInfo](objUrl)
+      onto <- getOntologyItemInfo(info.ontologyItems.get.head)
+    } yield {
+      val t = onto.term.split(" ").headOption
+
+      if(t.isDefined && t.get != "Left" && t.get != "Right")
+          None
+      else t
+    }
+  }
 
   /**
    * Lists folders on the VSD
@@ -360,6 +376,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
       res
     }
   }
+
 
 
   /**
