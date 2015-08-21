@@ -239,9 +239,8 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
    */
   def updateObjectOntologyItemRelation(relation: VSDObjectOntologyItem, objectInfo: VSDObjectInfo, ontologyItemURL: VSDURL): Future[VSDObjectOntologyItem] = {
     val channel = authChannel ~> unmarshal[VSDObjectOntologyItem]
-    val position = objectInfo.ontologyItemRelations.map(_.size).getOrElse(0)
     getOntologyItemInfo(ontologyItemURL).flatMap { ontologyItemInfo =>
-      val newRelation = VSDObjectOntologyItem(relation.id, position, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
+      val newRelation = VSDObjectOntologyItem(relation.id, relation.position, ontologyItemInfo.`type`, VSDURL(objectInfo.selfUrl), ontologyItemURL, "")
       channel(Put(s"$BASE_URL/object-ontologies/${ontologyItemInfo.`type`}/${relation.id}", newRelation))
     }
   }
