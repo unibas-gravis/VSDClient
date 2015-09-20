@@ -69,7 +69,7 @@ This call will succeed only if the credentials are valid. Once you obtained such
 
 In case you do not wish to write your credentials into the code directly, you can use another factory method for the VSDConnect object, taking as a parameter a credentials file. This is a normal file containing the login on the first line and the password on the second. You can then change the rights on the credentials file to be its only reader.
 
-### Important SSL connection : 
+### Important for SSL connection : 
 The virtual skeleton database uses an SSL authentication authority that is not recognized by default by the standard Java runtime. 
 
 This usually leads to an error on the SSL handshake when trying to connect to the server, manifested by a SSLHandshakeException.
