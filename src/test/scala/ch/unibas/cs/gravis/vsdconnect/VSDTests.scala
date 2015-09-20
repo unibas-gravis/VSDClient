@@ -1,3 +1,19 @@
+/*
+* Copyright 2015 University of Basel, Graphics and Vision Research Group
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 package ch.unibas.cs.gravis.vsdconnect
 
 import java.io.File
@@ -15,7 +31,7 @@ import scala.util.Success
   * This unit test suite has for objective to test the good functioning of the client and its compatibility with
   * the VSD REST API. Therefore, the code below should NOT be taken as an example usage of the client API, as it adds additional
   * complexity (and test framework specific code) to handle asynchronous events.
-  * For a manual on the client API usage, please refer to our quick start documents FIXME as well as the API doc.
+  * For a manual on the client API usage, please refer to our quick start document on Github as well as the API doc.
   */
 
 class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
