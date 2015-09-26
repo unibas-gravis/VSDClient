@@ -56,7 +56,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
   describe("VSD REST connection") {
 
-    val uploadedFile = scala.concurrent.promise[VSDURL]
+    val uploadedFile = scala.concurrent.Promise[VSDURL]
 
 
     it("can upload a single file") {
@@ -75,7 +75,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       whenReady(dldFile, timeout(Span(1, Minutes))) { s => assert(s.exists); s.delete }
     }
 
-    val uploadedObject = scala.concurrent.promise[VSDURL]
+    val uploadedObject = scala.concurrent.Promise[VSDURL]
 
     it("can upload a dicom directory ") {
 
@@ -111,7 +111,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val objInfo = scala.concurrent.promise[VSDRawImageObjectInfo]
+    val objInfo = scala.concurrent.Promise[VSDRawImageObjectInfo]
 
     it("can retrieve information on a VSD Raw Image object") {
       val objId = Await.result(uploadedObject.future, Duration(5, MINUTES))
@@ -158,8 +158,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val ontologyItem = scala.concurrent.promise[VSDOntologyItem]
-    val ontologyItem2 = scala.concurrent.promise[VSDOntologyItem]
+    val ontologyItem = scala.concurrent.Promise[VSDOntologyItem]
+    val ontologyItem2 = scala.concurrent.Promise[VSDOntologyItem]
 
     it("can retrieve the list of ontology items for one given ontology") {
       val FMAtypeKey = Await.result(ontologyKey.future, Duration(1, MINUTES))
@@ -173,8 +173,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       listOntItems onFailure { case e => ontologyItem.failure(new Exception("Failed to retrieve a valid ontology item id:  " + e)) }
     }
 
-    val newObjInfo = scala.concurrent.promise[VSDObjectInfo]
-    val objOntoItemRelation = scala.concurrent.promise[VSDObjectOntologyItem]
+    val newObjInfo = scala.concurrent.Promise[VSDObjectInfo]
+    val objOntoItemRelation = scala.concurrent.Promise[VSDObjectOntologyItem]
 
     it("can update the information of one object to be of a given ontology item") {
       val ontoItem = Await.result(ontologyItem.future, Duration(1, MINUTES))
@@ -196,8 +196,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val readyToCleanObject = scala.concurrent.promise[Boolean]
-    val readyToCleanFolder = scala.concurrent.promise[Boolean]
+    val readyToCleanObject = scala.concurrent.Promise[Boolean]
+    val readyToCleanFolder = scala.concurrent.Promise[Boolean]
 
     it("can update an object ontology relation") {
       val ontoItem = Await.result(ontologyItem2.future, Duration(1, MINUTES))
@@ -227,7 +227,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 //    }
 
 
-    val myDatafolder = scala.concurrent.promise[VSDFolder]
+    val myDatafolder = scala.concurrent.Promise[VSDFolder]
 
     it("can list available folders") {
       val dirs = vsd.listFolders()
@@ -237,7 +237,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val myCreatedfolder = scala.concurrent.promise[VSDFolder]
+    val myCreatedfolder = scala.concurrent.Promise[VSDFolder]
 
     it("can create a folder") {
       println("creating folder")
@@ -257,7 +257,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val addedToFolder = scala.concurrent.promise[VSDFolder]
+    val addedToFolder = scala.concurrent.Promise[VSDFolder]
 
     it("can add an object to a folder") {
       val createdInfo = Await.result(myCreatedfolder.future, Duration(1, MINUTES))
@@ -318,7 +318,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     }
 
 
-    val object2P = scala.concurrent.promise[VSDURL]
+    val object2P = scala.concurrent.Promise[VSDURL]
 
     it("can upload a nifti segmentation") {
       val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
@@ -329,7 +329,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val linkP = scala.concurrent.promise[VSDLink]
+    val linkP = scala.concurrent.Promise[VSDLink]
 
     it("can link 2 objects") {
       // first upload a second object
@@ -362,7 +362,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val statModelTypeP = scala.concurrent.promise[Int]
+    val statModelTypeP = scala.concurrent.Promise[Int]
     it("can list the object types supported by the VSD") {
       val r = vsd.listObjectTypes()
       whenReady(r, timeout(Span(1, Minutes))) { u =>
@@ -401,7 +401,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
     }
 
 
-    val rightP = scala.concurrent.promise[VSDObjectUserRight]
+    val rightP = scala.concurrent.Promise[VSDObjectUserRight]
     it("can assign object user rights") {
       val obj1Info = Await.result(objInfo.future, Duration(1, MINUTES))
 
