@@ -38,16 +38,17 @@ case class FileUploadResponse(file: VSDURL, relatedObject: VSDURL)
 trait VSDObjectInfo {
   val id: Int
   val createdDate: String
+  val name : String
   val description: Option[String]
   val ontologyCount: Option[Int]
   val `type`: Option[Int]
   val downloadUrl: String
   val license: Option[VSDURL]
-  val files: Seq[VSDURL]
-  val linkedObjects: Option[Seq[VSDURL]]
-  val linkedObjectRelations: Option[Seq[VSDURL]]
-  val ontologyItems: Option[Seq[VSDURL]]
-  val ontologyItemRelations: Option[Seq[VSDURL]]
+  val files: VSDPaginatedList[VSDURL]
+  val linkedObjects: Option[VSDPaginatedList[VSDURL]]
+  val linkedObjectRelations: Option[VSDPaginatedList[VSDURL]]
+  val ontologyItems: Option[VSDPaginatedList[VSDURL]]
+  val ontologyItemRelations: Option[VSDPaginatedList[VSDURL]]
   val objectPreviews: Option[Seq[VSDURL]]
   val objectGroupRights: Option[Seq[VSDURL]]
   val objectUserRights: Option[Seq[VSDURL]]
@@ -59,9 +60,9 @@ trait VSDObjectInfo {
   * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
   *
   */
-case class VSDCommonObjectInfo(id: Int, createdDate: String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
-                               downloadUrl: String, license: Option[VSDURL], files: Seq[VSDURL], linkedObjects: Option[Seq[VSDURL]], linkedObjectRelations: Option[Seq[VSDURL]],
-                               ontologyItems: Option[Seq[VSDURL]], ontologyItemRelations: Option[Seq[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
+case class VSDCommonObjectInfo(id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
+                               downloadUrl: String, license: Option[VSDURL], files: VSDPaginatedList[VSDURL], linkedObjects: Option[VSDPaginatedList[VSDURL]], linkedObjectRelations: Option[VSDPaginatedList[VSDURL]],
+                               ontologyItems: Option[VSDPaginatedList[VSDURL]], ontologyItemRelations: Option[VSDPaginatedList[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
                                objectUserRights: Option[Seq[VSDURL]], selfUrl: String) extends VSDObjectInfo
 
 /** *
@@ -70,9 +71,9 @@ case class VSDCommonObjectInfo(id: Int, createdDate: String, description: Option
   *
   */
 case class VSDRawImageObjectInfo(sliceThickness: Option[Float], spaceBetweenSlices: Option[Float], kilovoltPeak: Option[Float],
-                                 modality: Option[VSDURL], id: Int, createdDate: String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
-                                 downloadUrl: String, license: Option[VSDURL], files: Seq[VSDURL], linkedObjects: Option[Seq[VSDURL]], linkedObjectRelations: Option[Seq[VSDURL]],
-                                 ontologyItems: Option[Seq[VSDURL]], ontologyItemRelations: Option[Seq[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
+                                 modality: Option[VSDURL], id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
+                                 downloadUrl: String, license: Option[VSDURL], files: VSDPaginatedList[VSDURL], linkedObjects: Option[VSDPaginatedList[VSDURL]], linkedObjectRelations: Option[VSDPaginatedList[VSDURL]],
+                                 ontologyItems: Option[VSDPaginatedList[VSDURL]], ontologyItemRelations: Option[VSDPaginatedList[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
                                  objectUserRights: Option[Seq[VSDURL]], selfUrl: String) extends VSDObjectInfo
 
 /** *
@@ -80,9 +81,9 @@ case class VSDRawImageObjectInfo(sliceThickness: Option[Float], spaceBetweenSlic
   * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
   *
   */
-case class VSDSegmentationObjectInfo(segmentationMethodDescription: Option[String], segmentationMethod: Option[VSDURL], id: Int, createdDate: String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
-                                     downloadUrl: String, license: Option[VSDURL], files: Seq[VSDURL], linkedObjects: Option[Seq[VSDURL]], linkedObjectRelations: Option[Seq[VSDURL]],
-                                     ontologyItems: Option[Seq[VSDURL]], ontologyItemRelations: Option[Seq[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
+case class VSDSegmentationObjectInfo(segmentationMethodDescription: Option[String], segmentationMethod: Option[VSDURL], id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
+                                     downloadUrl: String, license: Option[VSDURL], files: VSDPaginatedList[VSDURL], linkedObjects: Option[VSDPaginatedList[VSDURL]], linkedObjectRelations: Option[VSDPaginatedList[VSDURL]],
+                                     ontologyItems: Option[VSDPaginatedList[VSDURL]], ontologyItemRelations: Option[VSDPaginatedList[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
                                      objectUserRights: Option[Seq[VSDURL]], selfUrl: String) extends VSDObjectInfo
 
 
@@ -91,9 +92,9 @@ case class VSDSegmentationObjectInfo(segmentationMethodDescription: Option[Strin
   * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
   *
   */
-case class VSDStatisticalModelObjectInfo(id: Int, createdDate: String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
-                                         downloadUrl: String, license: Option[VSDURL], files: Seq[VSDURL], linkedObjects: Option[Seq[VSDURL]], linkedObjectRelations: Option[Seq[VSDURL]],
-                                         ontologyItems: Option[Seq[VSDURL]], ontologyItemRelations: Option[Seq[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
+case class VSDStatisticalModelObjectInfo(id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
+                                         downloadUrl: String, license: Option[VSDURL], files: VSDPaginatedList[VSDURL], linkedObjects: Option[VSDPaginatedList[VSDURL]], linkedObjectRelations: Option[VSDPaginatedList[VSDURL]],
+                                         ontologyItems: Option[VSDPaginatedList[VSDURL]], ontologyItemRelations: Option[VSDPaginatedList[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
                                          objectUserRights: Option[Seq[VSDURL]], selfUrl: String) extends VSDObjectInfo
 
 /**
@@ -250,10 +251,10 @@ object VSDJson {
 
   implicit val VSDURLProtocol : RootJsonFormat[VSDURL] = jsonFormat1(VSDURL.apply)
   implicit val FileUploadResponseFormat  : RootJsonFormat[FileUploadResponse] = jsonFormat2(FileUploadResponse.apply)
-  implicit val VSDRawImageObjectInfoProtocol : RootJsonFormat[VSDRawImageObjectInfo] = jsonFormat20(VSDRawImageObjectInfo)
-  implicit val VSDSegmentationObjectInfoProtocol : RootJsonFormat[VSDSegmentationObjectInfo]= jsonFormat18(VSDSegmentationObjectInfo)
-  implicit val VSDCommonObjectInfoProtocol : RootJsonFormat[VSDCommonObjectInfo] = jsonFormat16(VSDCommonObjectInfo)
-  implicit val VSDStatModelObjectInfoProtocol : RootJsonFormat[VSDStatisticalModelObjectInfo] = jsonFormat16(VSDStatisticalModelObjectInfo)
+  implicit val VSDRawImageObjectInfoProtocol : RootJsonFormat[VSDRawImageObjectInfo] = rootFormat(lazyFormat(jsonFormat21(VSDRawImageObjectInfo)))
+  implicit val VSDSegmentationObjectInfoProtocol : RootJsonFormat[VSDSegmentationObjectInfo]= rootFormat(lazyFormat(jsonFormat19(VSDSegmentationObjectInfo)))
+  implicit val VSDCommonObjectInfoProtocol : RootJsonFormat[VSDCommonObjectInfo] = rootFormat(lazyFormat(jsonFormat17(VSDCommonObjectInfo)))
+  implicit val VSDStatModelObjectInfoProtocol : RootJsonFormat[VSDStatisticalModelObjectInfo] = rootFormat(lazyFormat(jsonFormat17(VSDStatisticalModelObjectInfo)))
   implicit val VSDOntologyProtocol : RootJsonFormat[VSDOntology] = jsonFormat2(VSDOntology)
   implicit val VSDOntologiesProtocol : RootJsonFormat[VSDOntologies] = jsonFormat1(VSDOntologies)
   implicit val VSDOntologyItemProtocol: RootJsonFormat[VSDOntologyItem] = jsonFormat4(VSDOntologyItem)
@@ -280,5 +281,5 @@ object VSDJson {
   implicit val VSDObjectGroupRightProtocol: RootJsonFormat[VSDObjectGroupRight] = jsonFormat5(VSDObjectGroupRight.apply)
   implicit val VSDObjectUserRightProtocol: RootJsonFormat[VSDObjectUserRight] = jsonFormat5(VSDObjectUserRight.apply)
   implicit val VSDPaginatedGroupProtocol: RootJsonFormat[VSDPaginatedList[VSDGroup]] = jsonFormat4(VSDPaginatedList[VSDGroup])
-
+  implicit val VSDPaginatedURLProtocol: RootJsonFormat[VSDPaginatedList[VSDURL]] = jsonFormat4(VSDPaginatedList[VSDURL])
 }

@@ -182,7 +182,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       println("updating object information to be of a certain ontology")
       val newObjOntoItemF = vsd.createObjectOntologyItemRelation(VSDURL(oldObinf.selfUrl), VSDURL(ontoItem.selfUrl))
       whenReady(newObjOntoItemF, timeout(Span(2, Minutes))) { newObjOntoItem =>
-        assert(newObjOntoItem.position === oldObinf.ontologyItemRelations.map(_.size).getOrElse(0))
+        assert(newObjOntoItem.position === oldObinf.ontologyItemRelations.map(_.items.size).getOrElse(0))
         objOntoItemRelation.success(newObjOntoItem)
 
         val f = vsd.getVSDObjectInfo[VSDRawImageObjectInfo](VSDURL(oldObinf.selfUrl))

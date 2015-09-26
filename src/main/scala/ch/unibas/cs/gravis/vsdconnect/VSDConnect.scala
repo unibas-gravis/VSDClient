@@ -141,7 +141,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
     *           This protocol variable can be found in the [[VSDJson]] object. For example, [[VSDJson.VSDCommonObjectInfoProtocol]] is the required formatter for [[VSDCommonObjectInfo]] information.
     **/
   def getVSDObjectInfo[A <: VSDObjectInfo : RootJsonFormat](url: VSDURL): Future[A] = {
-    val pipe = authChannel ~> unmarshal[A]
+    val pipe = authChannel ~>  unmarshal[A]
     pipe(Get(url.selfUrl))
   }
 
@@ -335,7 +335,7 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
   def getAnatomicalSide(objUrl: VSDURL): Future[Option[String]] = {
     for {
       info <- getVSDObjectInfo[VSDCommonObjectInfo](objUrl)
-      onto <- getOntologyItemInfo(info.ontologyItems.get.head)
+      onto <- getOntologyItemInfo(info.ontologyItems.get.items.head)
     } yield {
       val t = onto.term.split(" ").headOption
 
