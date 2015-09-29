@@ -16,8 +16,7 @@
 
 package ch.unibas.cs.gravis.vsdclient
 
-import java.io.{File, FileInputStream, FileOutputStream}
-import java.nio.file.Files
+import java.io.{File, FileInputStream, FileOutputStream, RandomAccessFile}
 import java.util.zip.{ZipEntry, ZipInputStream}
 
 import akka.actor.ActorSystem
@@ -63,7 +62,11 @@ class VSDClient private(user: String, password: String, BASE_URL: String) {
   def uploadFile(f: File, nbRetrials: Int = 0): Future[FileUploadResponse] = {
 
     val pipe = authChannel ~> unmarshal[FileUploadResponse]
-    val bArray = Files.readAllBytes(f.toPath)
+
+    val raf = new RandomAccessFile(f, "r");
+    val bArray = Array.ofDim[Byte](f.length().toInt)
+    raf.read(bArray)
+
     val req = Post(s"$BASE_URL/upload/", MultipartFormData(Seq(
       BodyPart(
         HttpEntity(ContentType(MediaTypes.`multipart/form-data`), bArray),
