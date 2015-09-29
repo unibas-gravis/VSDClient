@@ -1,6 +1,6 @@
-#VSDConnect
+#VSDClient
 
-VSDConnect is a library providing  a client to the [REST interface](https://www.virtualskeleton.ch/api/Help) provided by the [Virtual Skeleton Database (VSD)](https://www.virtualskeleton.ch/)
+VSDClient is a library providing  a client to the [REST interface](https://www.virtualskeleton.ch/api/Help) provided by the [Virtual Skeleton Database (VSD)](https://www.virtualskeleton.ch/)
 
 
 The vision of the project is to provide an environment where :
@@ -10,23 +10,23 @@ The vision of the project is to provide an environment where :
 
 * Recurrent tasks such as uploading a Dicom directory, downloading a folder, creating object links etc.. are already implemented in an intuitive manner. 
 
-The VSDConnect is intended to be used as a Software library to be included in the user's software project.
+The VSDClient is intended to be used as a Software library to be included in the user's software project.
 
 Although the library is written in [Scala](http://www.scala-lang.org/) (which of course makes it accessible to Scala projects), it is compatible with any JVM-based language, and **can notably be used from wihtin Java projects.**
 
 
-## Using VSDConnect
+## Using VSDClient
 
-To use VSDConnect in your own project, you can either : add the following lines to your build.sbt
+To use VSDClient in your own project, you can either : add the following lines to your build.sbt
 ```
 libraryDependencies  ++= Seq(
             // other dependencies here
-            "ch.unibas.cs.gravis" %% "vsdconnect" % "0.1.+"
+            "ch.unibas.cs.gravis" %% "vsdclient" % "0.1.+"
 )
 ```
 
-### Building VSDConnect 
-To build VSDConnect, run ```sbt``` and then any of the following commands
+### Building VSDClient 
+To build VSDClient, run ```sbt``` and then any of the following commands
 
 * ```compile```: Compile sbt
 * ```test```: Run the unit test
@@ -35,17 +35,17 @@ To build VSDConnect, run ```sbt``` and then any of the following commands
 
 
 #### Publishing and packaging locally
-You can publish the VSDConnect to your local ivy repository by running ```publishLocal``` into sbt.
+You can publish the VSDClient to your local ivy repository by running ```publishLocal``` into sbt.
 
 The project can also be easily assembled into a single jar by running ```assembly``` into sbt.
 
 ## Participation
 
-While VSDConnect is already usable for most common tasks on the VSD such as upload, download, setting object information, etc.., its API functionality does not yet encompass the full scope of possible actions on the VSD.
+While VSDClient is already usable for most common tasks on the VSD such as upload, download, setting object information, etc.., its API functionality does not yet encompass the full scope of possible actions on the VSD.
 
-If you find VSDConnect useful for your work, you can help us to make it more complete by implementing missing features, in particular actions that reveal to be recurrent and could be added to the API.
+If you find VSDClient useful for your work, you can help us to make it more complete by implementing missing features, in particular actions that reveal to be recurrent and could be added to the API.
 
-We are also always grateful if you report bugs or give us feedback on how you use VSDConnect in your work and how you think we can improve it. 
+We are also always grateful if you report bugs or give us feedback on how you use VSDClient in your work and how you think we can improve it. 
 
 ## Maintainers
 The project is currently developed and maintained by the Graphics and Vision Research group, University of Basel. 
@@ -55,19 +55,19 @@ The current maintainers of the project (people who can merge pull requests) are:
 
 
 ## Related Projects
-VSDConnect is closely related to the [Virtual Skeleton Database project](https://www.virtualskeleton.ch) as it seeks to implement the concepts and actions permitted by its REST interface.
+VSDClient is closely related to the [Virtual Skeleton Database project](https://www.virtualskeleton.ch) as it seeks to implement the concepts and actions permitted by its REST interface.
 
-VSDConnect can also be combined with the [Scalismo](https://github.com/unibas-gravis/scalismo) project that allows to read and process data downloaded from the VSD. In fact some of the developers of VSDConnect are also involved in Scalismo.
+VSDClient can also be combined with the [Scalismo](https://github.com/unibas-gravis/scalismo) project that allows to read and process data downloaded from the VSD. In fact some of the developers of VSDClient are also involved in Scalismo.
 
 ## Quick Start : 
 
 ### Creating a session with the VSD:
 ```scala
-val vsd = VSDConnect("login", "password").get
+val vsd = VSDClient("login", "password").get
 ```
-This call will succeed only if the credentials are valid. Once you obtained such a VSDConnect instance, all of your interaction with the VSD can be done via the methods of this object.
+This call will succeed only if the credentials are valid. Once you obtained such a VSDClient instance, all of your interaction with the VSD can be done via the methods of this object.
 
-In case you do not wish to write your credentials into the code directly, you can use another factory method for the VSDConnect object, taking as a parameter a credentials file. This is a normal file containing the login on the first line and the password on the second. You can then change the rights on the credentials file to be its only reader.
+In case you do not wish to write your credentials into the code directly, you can use another factory method for the VSDClient object, taking as a parameter a credentials file. This is a normal file containing the login on the first line and the password on the second. You can then change the rights on the credentials file to be its only reader.
 
 ### Important for SSL connection : 
 The virtual skeleton database uses an SSL authentication authority that is not recognized by default by the standard Java runtime. 
@@ -79,9 +79,9 @@ http://www.grim.se/guide/jre-cert
 
 ### Interactions with the VSD : Handling Asynchronicity
 
-Interactions with a remote service are asynchronous by nature. Therefore all of the methods of the VSDConnect return a Future of the expected response type, as can be seen in the methods signatures.
+Interactions with a remote service are asynchronous by nature. Therefore all of the methods of the VSDClient return a Future of the expected response type, as can be seen in the methods signatures.
 
-An intuitive explanation for a Future in scala is simply as a wrapper for the result of an asynchronous task. Depending on whether the task is completed succesfully or not, the Future might either contain the result of the task, or an Exception indicating what went wrong. 
+An intuitive explanation for a Future in scala is simply as a wrapper for the result of an asynchronous task. Depending on whether the task is completed successfully or not, the Future might either contain the result of the task, or an Exception indicating what went wrong.
 
 There are mainly three ways of dealing with Future's result: 
 
@@ -89,7 +89,7 @@ There are mainly three ways of dealing with Future's result:
 
 2- Define callbacks to be triggered on the success or the failure of the asynchronous task
 
-3- Explicitely block and wait for the completion of the Future, i.e. make the code synchronous
+3- Explicitly block and wait for the completion of the Future, i.e. make the code synchronous
 
 #### Chaining Futures
 You can choose any of the methods above to handle the results. A recommended way however to combine several asynchronous tasks that are dependent sequentially is to use the first method combined with a *for comprehension*. Below is an example where we first retrieve the information of a folder, list its content, retrieve the information of its first contained object and finally update its description : 
@@ -113,9 +113,9 @@ All uploaded data to the VSD via the REST interface, are first marked as "Unvali
 
 #### Uploading a single file
 ```scala
-val r : Future[FileUploadResponse]= vsd.sendFile(new File(path), 5)
+val r : Future[FileUploadResponse]= vsd.uploadFile(new File(path), 5)
 ```
-This method returns a Future of a FileUploadResponse. Once the Future completed, this operation will either contain the successfull answer from the VSD or an Exception with a message indicating what went wrong.
+This method returns a Future of a FileUploadResponse. Once the Future completed, this operation will either contain the successful answer from the VSD or an Exception with a message indicating what went wrong.
 
 The response from the VSD on a file upload is of type FileUpload Response that indicates:
 
@@ -132,7 +132,7 @@ These returned URLs are then used throughout the rest of the API to identify and
 #### Uploading a directory content (example Dicom directory)
 
 ```scala
-val result : Future[Either[List[String], List[VSDURL]]] = vsd.sendDirectoryContent(new File(path))
+val result : Future[Either[List[String], List[VSDURL]]] = vsd.uploadDirectoryContent(new File(path))
 ```
 The return type of this function might seem complicated, but in fact it is very simple. On completion, the Future will contain :
 
@@ -157,14 +157,14 @@ Both methods return the list containing information about all published, or unpu
 ```scala
 val dirs :Future[Array[VSDFolder]] = vsd.listFolders()
 ```
-This returns a list of informations about all the folders of the user on the VSD. Notice that this does not have hierarchical bounds and will return each and every sub-folder of a sub-folder.
+This returns a list of information about all the folders of the user on the VSD. Notice that this does not have hierarchical bounds and will return each and every sub-folder of a sub-folder.
 
 The folder information of type VSDFolder contains information about the hierarchy-level, parent directory and contained sub-folders and objects.
 
 In addition to the global list, information about a folder can be obtained by specifying the hierarchical path as seen on the VSD : 
 
 ```scala
-val folder : Future[VSDFolder] = vsd.getFolderFromPath( "/userName/MyProjects/exampleFolder")
+val folder : Future[Option[VSDFolder]] = vsd.getFolderFromPath( "/userName/MyProjects/exampleFolder")
 ```
 This will return the information about the folder if it exists.
 
@@ -176,30 +176,31 @@ This will return the information about the folder if it exists.
 Once you have the download url of an object you wish to download (obtained by either listing contents or folders) : 
 
 ```scala
-val objFile : Future[File] = vsd.downloadVSDObject(objectURL, destinationDir, "objectName.zip")
+val objFile : Future[File] = vsd.downloadVSDObject(objectURL, destinationDir)
 ```
 Notice that the VSD ships all downloaded objects in one zip. This means, whether the desired object is a Dicom scan or a Nifti volume, in both cases a zip file is downloaded from the VSD.
+The *downloadVSDObject* method then automatically unzips the downloaded file into the indicated folder.
 
 ##### For folders : 
 
 It is also possible to download the content of folders once you have the information of the folder 
 
 ```scala 
-val resultList : Future[Seq[(VSDCommonObjectInfo, File)]] = downloadFolder(folder: VSDFolder, destination: File)
+val resultList : Future[Seq[(VSDCommonObjectInfo, File)]] = vsd.downloadFolder(folder: VSDFolder, destination: File)
 ```
-On success, this returns the list of the downloaded VSD objects contained in the directory (and in its sub-directories) as well as the File in which each object was downloaded.
+On success, this returns the list of the downloaded VSD objects contained in the directory (and in its sub-directories) as well as the File to which each object was downloaded.
 
 
 
 #### Usage from Java : 
 
-Although the library is written in Scala, it can be easily accessed from within a Java program. Below is an example creating a session and performing several dependendent tasks, this time however by blocking for every Asynchronous call : 
+Although the library is written in Scala, it can be easily accessed from within a Java program. Below is an example creating a session and performing several dependent tasks, this time however by blocking for every Asynchronous call :
 ```java 
 public class ExampleUsage {
 
     public static void main(String[] args) {
 
-        VSDConnect vsd = VSDConnect.demo("demo@virtualskeleton.ch", "demo").get();
+        VSDClient vsd = VSDClient.demo("demo@virtualskeleton.ch", "demo").get();
 
         try {
             // list folders
@@ -234,16 +235,16 @@ public class ExampleUsage {
 
 #### Further functionality : 
 
-Many other functionalities are possible using VSDConnect and go beyond the scope of this quick-start : 
+Many other operations are possible using VSDClient and go beyond the scope of this quick-start :
 
 * creating links between objects (example: link segmentation object to its original raw image)
 * update information of an object (example : assign it a particular ontology item to declare which organ it depicts)
 * assign rights to users and groups on objects and folders 
 * creating folders and moving objects to them
-* support for information of different types of objects (raw image, segmentation, statstical model)
+* support for information of different types of objects (raw image, segmentation, statistical model)
 * ...
 
-To learn more about those, please check the API doc of the methods of VSDConnect class.
+To learn more about those, please check the API doc of the methods of VSDClient class.
 
 ## Copyright and License
 
