@@ -14,6 +14,9 @@ The VSDClient is intended to be used as a Software library to be included in the
 
 Although the library is written in [Scala](http://www.scala-lang.org/) (which of course makes it accessible to Scala projects), it is compatible with any JVM-based language, and **can notably be used from wihtin Java projects.**
 
+## API Doc
+
+[The latest project API doc](http://unibas-gravis.github.io/VSDClient/latest/api/index.html#ch.unibas.cs.gravis.vsdclient.VSDClient)
 
 ## Using VSDClient
 
