@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package ch.unibas.cs.gravis.vsdconnect
+package ch.unibas.cs.gravis.vsdclient
 
 import java.io.{File, FileInputStream, FileOutputStream}
 import java.nio.file.Files
@@ -25,7 +25,7 @@ import akka.event.Logging
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout.durationToTimeout
-import ch.unibas.cs.gravis.vsdconnect.VSDJson._
+import ch.unibas.cs.gravis.vsdclient.VSDJson._
 import org.apache.commons.io.FileUtils
 import spray.can.Http
 import spray.client.pipelining
@@ -46,7 +46,7 @@ import scala.util.{Failure, Success, Try}
   * Class representing an authenticated session with the VSD. Once successfully created, all operations on the VSD can be performed by accessing methods of this class
   */
 
-class VSDConnect private(user: String, password: String, BASE_URL: String) {
+class VSDClient private(user: String, password: String, BASE_URL: String) {
 
   implicit val system = ActorSystem(s"VSDConnect-user-${user.replace("@", "-").replace(".", "-")}")
 
@@ -702,12 +702,12 @@ class VSDConnect private(user: String, password: String, BASE_URL: String) {
 }
 
 /**
- * Factory for VSDConnect class
+ * Factory for VSDClient class
  */
-object VSDConnect {
+object VSDClient {
 
-  private def connect(username: String, password: String, BASE_URL: String): Try[VSDConnect] = {
-    val conn = new VSDConnect(username, password, BASE_URL)
+  private def connect(username: String, password: String, BASE_URL: String): Try[VSDClient] = {
+    val conn = new VSDClient(username, password, BASE_URL)
     implicit val system = conn.system
     implicit val ex = system.dispatcher
 
@@ -728,7 +728,7 @@ object VSDConnect {
    *         Otherwise, a failure is returned
    *
    */
-  def apply(username: String, password: String): Try[VSDConnect] = {
+  def apply(username: String, password: String): Try[VSDClient] = {
     val BASE_URL = "https://www.virtualskeleton.ch/api"
     connect(username, password, BASE_URL)
   }
@@ -740,7 +740,7 @@ object VSDConnect {
    * @return a Successfull VSDConnect object is only returned if the authentication and session establishment succeeded.
    *         Otherwise, a failure is returned
    */
-  def apply(credentialsFile: File): Try[VSDConnect] = {
+  def apply(credentialsFile: File): Try[VSDClient] = {
     val lines = Source.fromFile(credentialsFile).getLines().toIndexedSeq
     val login = lines(0);
     val pass = lines(1)
@@ -753,7 +753,7 @@ object VSDConnect {
    * @return a Successfull VSDConnect object is only returned if the authentication and session establishment succeeded.
    *         Otherwise, a failure is returned
    */
-  def demo(username: String, password: String): Try[VSDConnect] = {
+  def demo(username: String, password: String): Try[VSDClient] = {
     val BASE_URL = "https://demo.virtualskeleton.ch/api"
     connect(username, password, BASE_URL)
   }

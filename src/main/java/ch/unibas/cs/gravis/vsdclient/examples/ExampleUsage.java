@@ -15,9 +15,9 @@
 */
 
 
-package ch.unibas.cs.gravis.vsdconnect.examples;
+package ch.unibas.cs.gravis.vsdclient.examples;
 
-import ch.unibas.cs.gravis.vsdconnect.*;
+import ch.unibas.cs.gravis.vsdclient.*;
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 
@@ -29,7 +29,7 @@ public class ExampleUsage {
     public static void main(String[] args) {
 
         // make sure to change the "demo" method call to "apply" when working with the real VSD
-        VSDConnect vsd = VSDConnect.demo("demo@virtualskeleton.ch", "demo").get();
+        VSDClient vsd = VSDClient.demo("demo@virtualskeleton.ch", "demo").get();
 
         try {
             // list folders

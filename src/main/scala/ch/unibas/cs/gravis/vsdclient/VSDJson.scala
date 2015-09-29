@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package ch.unibas.cs.gravis.vsdconnect
+package ch.unibas.cs.gravis.vsdclient
 
 import spray.json._
 import DefaultJsonProtocol._

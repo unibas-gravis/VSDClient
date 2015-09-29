@@ -18,9 +18,10 @@ package ch.unibas.cs.gravis.vsdconnect
 
 import java.io.File
 
-import org.scalatest.{FunSpec, _}
+import ch.unibas.cs.gravis.vsdclient._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Minutes, Span}
+import org.scalatest.{FunSpec, _}
 import spray.can.Http.ConnectionException
 
 import scala.concurrent.Await
@@ -36,7 +37,7 @@ import scala.util.Success
 
 class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
 
-  val vsd = VSDConnect.demo("demo@virtualskeleton.ch", "demo").get
+  val vsd = VSDClient.demo("demo@virtualskeleton.ch", "demo").get
 
   implicit val system = vsd.system.dispatcher
 

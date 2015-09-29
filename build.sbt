@@ -2,7 +2,7 @@ organization  := "ch.unibas.cs.gravis"
 
 version       := "0.1.0"
 
-name := "vsdconnect"
+name := "vsdclient"
 
 scalaVersion  := "2.11.6"
 

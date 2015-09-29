@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package ch.unibas.cs.gravis.vsdconnect
+package ch.unibas.cs.gravis.vsdclient
 
 /**
  * An example usage in Scala.
@@ -30,7 +30,7 @@ object ExampleUsage {
   def main(args: Array[String]): Unit = {
 
     // make sure to change the "demo" method call to "apply" when working with the real VSD
-    val vsd: VSDConnect = VSDConnect.demo("demo@virtualskeleton.ch", "demo").get
+    val vsd: VSDClient = VSDClient.demo("demo@virtualskeleton.ch", "demo").get
 
     val futre = for {
       folders <- vsd.listFolders() // list folders
