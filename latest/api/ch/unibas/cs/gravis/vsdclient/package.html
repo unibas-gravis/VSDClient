@@ -1,0 +1,781 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>vsdclient - ch.unibas.cs.gravis.vsdclient</title>
+          <meta name="description" content="vsdclient - ch.unibas.cs.gravis.vsdclient" />
+          <meta name="keywords" content="vsdclient ch.unibas.cs.gravis.vsdclient" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'ch.unibas.cs.gravis.vsdclient.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="ch">ch</a>.<a href="../../../package.html" class="extype" name="ch.unibas">unibas</a>.<a href="../../package.html" class="extype" name="ch.unibas.cs">cs</a>.<a href="../package.html" class="extype" name="ch.unibas.cs.gravis">gravis</a></p>
+        <h1>vsdclient</h1><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">vsdclient</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="ch.unibas.cs.gravis.vsdclient.FileUploadResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="FileUploadResponseextendsProductwithSerializable"></a>
+      <a id="FileUploadResponse:FileUploadResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="FileUploadResponse.html"><span class="name">FileUploadResponse</span></a><span class="params">(<span name="file">file: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>, <span name="relatedObject">relatedObject: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@FileUploadResponseextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Result class of a File upload operation as returned by the VSD</p><div class="fullcomment"><div class="comment cmt"><p>Result class of a File upload operation as returned by the VSD</p></div><dl class="paramcmts block"><dt class="param">file</dt><dd class="cmt"><p>url of the successfully uploaded file</p></dd><dt class="param">relatedObject</dt><dd class="cmt"><p>url of the created object associated to this file. For example,several upload Dicom files will have the same related VSD object
+</p></dd></dl></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDClient" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDClientextendsAnyRef"></a>
+      <a id="VSDClient:VSDClient"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDClient.html"><span class="name">VSDClient</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDClientextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class representing an authenticated session with the VSD.</p><div class="fullcomment"><div class="comment cmt"><p>Class representing an authenticated session with the VSD. Once successfully created, all operations on the VSD can be performed by accessing methods of this class
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDCommonObjectInfo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDCommonObjectInfoextendsVSDObjectInfowithProductwithSerializable"></a>
+      <a id="VSDCommonObjectInfo:VSDCommonObjectInfo"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDCommonObjectInfo.html"><span class="name">VSDCommonObjectInfo</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="createdDate">createdDate: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="ontologyCount">ontologyCount: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="type">type: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="downloadUrl">downloadUrl: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="license">license: <span class="extype" name="scala.Option">Option</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="files">files: <a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="linkedObjects">linkedObjects: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="linkedObjectRelations">linkedObjectRelations: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="ontologyItems">ontologyItems: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="ontologyItemRelations">ontologyItemRelations: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectPreviews">objectPreviews: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectGroupRights">objectGroupRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectUserRights">objectUserRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="VSDObjectInfo.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectInfo">VSDObjectInfo</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDCommonObjectInfoextendsVSDObjectInfowithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Common VSD Object information that is present for all supported object types
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Common VSD Object information that is present for all supported object types
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a></p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDFolder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDFolderextendsProductwithSerializable"></a>
+      <a id="VSDFolder:VSDFolder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDFolder.html"><span class="name">VSDFolder</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="level">level: <span class="extype" name="scala.Int">Int</span></span>, <span name="parentFolder">parentFolder: <span class="extype" name="scala.Option">Option</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="childFolders">childFolders: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="containedObjects">containedObjects: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="folderGroupRights">folderGroupRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="folderUserRights">folderUserRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDFolderextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of Folders on the VSD
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Class of Folders on the VSD
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDGroup" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDGroupextendsProductwithSerializable"></a>
+      <a id="VSDGroup:VSDGroup"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDGroup.html"><span class="name">VSDGroup</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="chief">chief: <span class="extype" name="scala.Option">Option</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDGroupextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of groups (user groups) on the VSD
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Class of groups (user groups) on the VSD
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDKeyValEntry" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VSDKeyValEntryextendsProductwithSerializable"></a>
+      <a id="VSDKeyValEntry:VSDKeyValEntry"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDKeyValEntry.html"><span class="name">VSDKeyValEntry</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Int">Int</span></span>, <span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDKeyValEntryextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of Key-Value entries
+</p>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDLink" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDLinkextendsProductwithSerializable"></a>
+      <a id="VSDLink:VSDLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDLink.html"><span class="name">VSDLink</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="description">description: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="object1">object1: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>, <span name="object2">object2: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDLinkextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of Links on the VSD.</p><div class="fullcomment"><div class="comment cmt"><p>Class of Links on the VSD. a link indicates a relation between 2 objects eg. object 2 is the segmentation of the raw object 1
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDModality" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDModalityextendsProductwithSerializable"></a>
+      <a id="VSDModality:VSDModality"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDModality.html"><span class="name">VSDModality</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="description">description: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDModalityextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of Image modalities supported by the VSD (CT, OT,).</p><div class="fullcomment"><div class="comment cmt"><p>Class of Image modalities supported by the VSD (CT, OT,). A detailed list of modality names (not necessarily all supported by the VSD) can be found <a href="https://wiki.nci.nih.gov/display/CIP/Key+to+two-letter+Modality+Acronyms+in+DICOM" target="_blank">here</a>
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDObjectGroupRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDObjectGroupRightextendsProductwithSerializable"></a>
+      <a id="VSDObjectGroupRight:VSDObjectGroupRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDObjectGroupRight.html"><span class="name">VSDObjectGroupRight</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="relatedObject">relatedObject: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>, <span name="relatedGroup">relatedGroup: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>, <span name="relatedRights">relatedRights: <span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDObjectGroupRightextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class indicating rights attributed to a group on a VSD object
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Class indicating rights attributed to a group on a VSD object
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDObjectInfo" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="VSDObjectInfoextendsAnyRef"></a>
+      <a id="VSDObjectInfo:VSDObjectInfo"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDObjectInfo.html"><span class="name">VSDObjectInfo</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDObjectInfoextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDObjectOntologyItem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDObjectOntologyItemextendsProductwithSerializable"></a>
+      <a id="VSDObjectOntologyItem:VSDObjectOntologyItem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDObjectOntologyItem.html"><span class="name">VSDObjectOntologyItem</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="position">position: <span class="extype" name="scala.Int">Int</span></span>, <span name="type">type: <span class="extype" name="scala.Int">Int</span></span>, <span name="object">object: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>, <span name="ontologyItem">ontologyItem: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDObjectOntologyItemextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Relation between an ontology item and a VSD object.</p><div class="fullcomment"><div class="comment cmt"><p>Relation between an ontology item and a VSD object. This is used to say that the VSD object is a depiction of a particular organ
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a></p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDObjectOptions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDObjectOptionsextendsProductwithSerializable"></a>
+      <a id="VSDObjectOptions:VSDObjectOptions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDObjectOptions.html"><span class="name">VSDObjectOptions</span></a><span class="params">(<span name="types">types: <span class="extype" name="scala.Seq">Seq</span>[<a href="VSDKeyValEntry.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDKeyValEntry">VSDKeyValEntry</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDObjectOptionsextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class summing object types supported by the VSD.</p><div class="fullcomment"><div class="comment cmt"><p>Class summing object types supported by the VSD. These can be RawImage,Segmentation, StatisticalModel, ..
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDObjectRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDObjectRightextendsProductwithSerializable"></a>
+      <a id="VSDObjectRight:VSDObjectRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDObjectRight.html"><span class="name">VSDObjectRight</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="rightValue">rightValue: <span class="extype" name="scala.Int">Int</span></span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDObjectRightextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of rights than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Class of rights than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDObjectUserRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDObjectUserRightextendsProductwithSerializable"></a>
+      <a id="VSDObjectUserRight:VSDObjectUserRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDObjectUserRight.html"><span class="name">VSDObjectUserRight</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="relatedObject">relatedObject: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>, <span name="relatedUser">relatedUser: <a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a></span>, <span name="relatedRights">relatedRights: <span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDObjectUserRightextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class indicating rights attributed to a users on a VSD object
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Class indicating rights attributed to a users on a VSD object
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDOntologies" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VSDOntologiesextendsProductwithSerializable"></a>
+      <a id="VSDOntologies:VSDOntologies"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDOntologies.html"><span class="name">VSDOntologies</span></a><span class="params">(<span name="types">types: <span class="extype" name="scala.Array">Array</span>[<a href="VSDOntology.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDOntology">VSDOntology</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDOntologiesextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of lists of <a href="VSDOntology.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDOntology">VSDOntology</a> returned upon request</p>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDOntology" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDOntologyextendsProductwithSerializable"></a>
+      <a id="VSDOntology:VSDOntology"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDOntology.html"><span class="name">VSDOntology</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Int">Int</span></span>, <span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDOntologyextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of VSD Ontologies.</p><div class="fullcomment"><div class="comment cmt"><p>Class of VSD Ontologies. An ontology on the VSD, is a set of statndardized denomination of anatomical organs. An example of such an ontology is the
+<a href="https://en.wikipedia.org/wiki/Foundational_Model_of_Anatomy" target="_blank">Foundational Model of Anatomy (FMA)</a>
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a></p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDOntologyItem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDOntologyItemextendsProductwithSerializable"></a>
+      <a id="VSDOntologyItem:VSDOntologyItem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDOntologyItem.html"><span class="name">VSDOntologyItem</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="term">term: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="type">type: <span class="extype" name="scala.Int">Int</span></span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDOntologyItemextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of an item belonging to an ontology supported by the VSD.</p><div class="fullcomment"><div class="comment cmt"><p>Class of an item belonging to an ontology supported by the VSD. This is typically the denomination of a particular organ of interest in the given ontology.
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a></p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDPaginatedList[A]extendsProductwithSerializable"></a>
+      <a id="VSDPaginatedList[A]:VSDPaginatedList[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDPaginatedList.html"><span class="name">VSDPaginatedList</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="totalCount">totalCount: <span class="extype" name="scala.Int">Int</span></span>, <span name="pagination">pagination: <a href="VSDPagination.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPagination">VSDPagination</a></span>, <span name="items">items: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList.A">A</span>]</span>, <span name="nextPageUrl">nextPageUrl: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDPaginatedList[A]extendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Internal class to handle paginated responses.</p><div class="fullcomment"><div class="comment cmt"><p>Internal class to handle paginated responses.</p><p>(required to be public due to Marshalling implicits)
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDPagination" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDPaginationextendsProductwithSerializable"></a>
+      <a id="VSDPagination:VSDPagination"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDPagination.html"><span class="name">VSDPagination</span></a><span class="params">(<span name="rpp">rpp: <span class="extype" name="scala.Int">Int</span></span>, <span name="page">page: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDPaginationextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Internal class to handle paginated responses.</p><div class="fullcomment"><div class="comment cmt"><p>Internal class to handle paginated responses.</p><p>(required to be public due to Marshalling implicits)
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDRawImageObjectInfo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDRawImageObjectInfoextendsVSDObjectInfowithProductwithSerializable"></a>
+      <a id="VSDRawImageObjectInfo:VSDRawImageObjectInfo"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDRawImageObjectInfo.html"><span class="name">VSDRawImageObjectInfo</span></a><span class="params">(<span name="sliceThickness">sliceThickness: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Float">Float</span>]</span>, <span name="spaceBetweenSlices">spaceBetweenSlices: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Float">Float</span>]</span>, <span name="kilovoltPeak">kilovoltPeak: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Float">Float</span>]</span>, <span name="modality">modality: <span class="extype" name="scala.Option">Option</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="createdDate">createdDate: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="ontologyCount">ontologyCount: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="type">type: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="downloadUrl">downloadUrl: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="license">license: <span class="extype" name="scala.Option">Option</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="files">files: <a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="linkedObjects">linkedObjects: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="linkedObjectRelations">linkedObjectRelations: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="ontologyItems">ontologyItems: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="ontologyItemRelations">ontologyItemRelations: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectPreviews">objectPreviews: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectGroupRights">objectGroupRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectUserRights">objectUserRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="VSDObjectInfo.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectInfo">VSDObjectInfo</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDRawImageObjectInfoextendsVSDObjectInfowithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Information for VSD Objects of type RAW (i.e.</p><div class="fullcomment"><div class="comment cmt"><p>Information for VSD Objects of type RAW (i.e. raw intensity images). Additionally to the common object information, this adds optional fields such as slice thickness, inter-spacing, signal strength, modality, ..
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a></p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDSegmentationMethod" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDSegmentationMethodextendsProductwithSerializable"></a>
+      <a id="VSDSegmentationMethod:VSDSegmentationMethod"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDSegmentationMethod.html"><span class="name">VSDSegmentationMethod</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDSegmentationMethodextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class of Segmentation methods supported by the VSD.</p><div class="fullcomment"><div class="comment cmt"><p>Class of Segmentation methods supported by the VSD. These are for example: Manual, Automatic. Semi-Automatic
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDSegmentationObjectInfo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDSegmentationObjectInfoextendsVSDObjectInfowithProductwithSerializable"></a>
+      <a id="VSDSegmentationObjectInfo:VSDSegmentationObjectInfo"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDSegmentationObjectInfo.html"><span class="name">VSDSegmentationObjectInfo</span></a><span class="params">(<span name="segmentationMethodDescription">segmentationMethodDescription: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="segmentationMethod">segmentationMethod: <span class="extype" name="scala.Option">Option</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="createdDate">createdDate: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="ontologyCount">ontologyCount: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="type">type: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="downloadUrl">downloadUrl: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="license">license: <span class="extype" name="scala.Option">Option</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="files">files: <a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="linkedObjects">linkedObjects: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="linkedObjectRelations">linkedObjectRelations: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="ontologyItems">ontologyItems: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="ontologyItemRelations">ontologyItemRelations: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectPreviews">objectPreviews: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectGroupRights">objectGroupRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectUserRights">objectUserRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="VSDObjectInfo.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectInfo">VSDObjectInfo</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDSegmentationObjectInfoextendsVSDObjectInfowithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Information for VSD Objects of type Segmentation (i.e.</p><div class="fullcomment"><div class="comment cmt"><p>Information for VSD Objects of type Segmentation (i.e. binary images). Additionally to the common object information, this adds optional fields such as segmentation method, and a description ..
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a></p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDStatisticalModelObjectInfo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDStatisticalModelObjectInfoextendsVSDObjectInfowithProductwithSerializable"></a>
+      <a id="VSDStatisticalModelObjectInfo:VSDStatisticalModelObjectInfo"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDStatisticalModelObjectInfo.html"><span class="name">VSDStatisticalModelObjectInfo</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="createdDate">createdDate: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="ontologyCount">ontologyCount: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="type">type: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="downloadUrl">downloadUrl: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="license">license: <span class="extype" name="scala.Option">Option</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="files">files: <a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]</span>, <span name="linkedObjects">linkedObjects: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="linkedObjectRelations">linkedObjectRelations: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="ontologyItems">ontologyItems: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="ontologyItemRelations">ontologyItemRelations: <span class="extype" name="scala.Option">Option</span>[<a href="VSDPaginatedList.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDPaginatedList">VSDPaginatedList</a>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectPreviews">objectPreviews: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectGroupRights">objectGroupRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="objectUserRights">objectUserRights: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="VSDURL.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDURL">VSDURL</a>]]</span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="VSDObjectInfo.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectInfo">VSDObjectInfo</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDStatisticalModelObjectInfoextendsVSDObjectInfowithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Information for VSD Objects of type Statistical Model (i.e.</p><div class="fullcomment"><div class="comment cmt"><p>Information for VSD Objects of type Statistical Model (i.e. h5 files)
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a></p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDURL" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDURLextendsProductwithSerializable"></a>
+      <a id="VSDURL:VSDURL"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDURL.html"><span class="name">VSDURL</span></a><span class="params">(<span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDURLextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">VSDURL is the first clsss pointer to objects on the VSD.</p><div class="fullcomment"><div class="comment cmt"><p>VSDURL is the first clsss pointer to objects on the VSD. It can point to Files, Objects, Folders, Links, Ontologies, etc ...
+Most of the client's API requests rely on a VSDURL to identify the objects to manipulate.
+</p></div><dl class="paramcmts block"><dt class="param">selfUrl</dt><dd class="cmt"><p>actual URL of the resource
+</p></dd></dl></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDUser" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDUserextendsProductwithSerializable"></a>
+      <a id="VSDUser:VSDUser"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDUser.html"><span class="name">VSDUser</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>, <span name="username">username: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="selfUrl">selfUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDUserextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class identifying a user on the VSD
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Class identifying a user on the VSD
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a></p></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="ch.unibas.cs.gravis.vsdclient.ExampleUsage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExampleUsage"></a>
+      <a id="ExampleUsage:ExampleUsage"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ExampleUsage$.html"><span class="name">ExampleUsage</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@ExampleUsage" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDClient" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VSDClient"></a>
+      <a id="VSDClient:VSDClient"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDClient$.html"><span class="name">VSDClient</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDClient" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for VSDClient class
+</p>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDDownloadRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDDownloadRight"></a>
+      <a id="VSDDownloadRight:VSDDownloadRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDDownloadRight$.html"><span class="name">VSDDownloadRight</span></a><span class="result"> extends <a href="VSDObjectRight.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectRight">VSDObjectRight</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDDownloadRight" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">*
+Download right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>*
+Download right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDEditRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDEditRight"></a>
+      <a id="VSDEditRight:VSDEditRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDEditRight$.html"><span class="name">VSDEditRight</span></a><span class="result"> extends <a href="VSDObjectRight.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectRight">VSDObjectRight</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDEditRight" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Edit right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Edit right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDJson" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VSDJson"></a>
+      <a id="VSDJson:VSDJson"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDJson$.html"><span class="name">VSDJson</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDJson" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Defines variables required de/serializing VSD related classes from/to Json</p>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDManageRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDManageRight"></a>
+      <a id="VSDManageRight:VSDManageRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDManageRight$.html"><span class="name">VSDManageRight</span></a><span class="result"> extends <a href="VSDObjectRight.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectRight">VSDObjectRight</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDManageRight" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Manage right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Manage right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDNoneRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDNoneRight"></a>
+      <a id="VSDNoneRight:VSDNoneRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDNoneRight$.html"><span class="name">VSDNoneRight</span></a><span class="result"> extends <a href="VSDObjectRight.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectRight">VSDObjectRight</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDNoneRight" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">None right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>None right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDOwnerRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDOwnerRight"></a>
+      <a id="VSDOwnerRight:VSDOwnerRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDOwnerRight$.html"><span class="name">VSDOwnerRight</span></a><span class="result"> extends <a href="VSDObjectRight.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectRight">VSDObjectRight</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDOwnerRight" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Owner right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Owner right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDReadRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDReadRight"></a>
+      <a id="VSDReadRight:VSDReadRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDReadRight$.html"><span class="name">VSDReadRight</span></a><span class="result"> extends <a href="VSDObjectRight.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectRight">VSDObjectRight</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDReadRight" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Read right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Read right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.VSDVisitRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VSDVisitRight"></a>
+      <a id="VSDVisitRight:VSDVisitRight"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="VSDVisitRight$.html"><span class="name">VSDVisitRight</span></a><span class="result"> extends <a href="VSDObjectRight.html" class="extype" name="ch.unibas.cs.gravis.vsdclient.VSDObjectRight">VSDObjectRight</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@VSDVisitRight" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Visit right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory.</p><div class="fullcomment"><div class="comment cmt"><p>Visit right than can be attributed to VSD objects and Folders
+The sub-fields names should be self-explanatory. In case of doubt, please check the <a href="https://www.virtualskeleton.ch/api/Help" target="_blank">VSD's API doc</a>
+</p></div></div>
+    </li><li name="ch.unibas.cs.gravis.vsdclient.examples" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="examples"></a>
+      <a id="examples:examples"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="examples/package.html"><span class="name">examples</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#ch.unibas.cs.gravis.vsdclient.package@examples" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
