@@ -24,6 +24,10 @@ publishTo :=  Some(Resolver.file("file", new File("/export/contrib/statismo/repo
 
 seq(Revolver.settings: _*)
 
+seq(site.settings: _*)
 
+seq(ghpages.settings: _*)
 
+site.includeScaladoc()
 
+git.remoteRepo := "git@github.com:unibas-gravis/VSDClient.git"
