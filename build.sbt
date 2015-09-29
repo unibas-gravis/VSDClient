@@ -20,6 +20,8 @@ libraryDependencies ++= {
   )
 }
 
+publishTo :=  Some(Resolver.file("file", new File("/export/contrib/statismo/repo/public")))
+
 seq(Revolver.settings: _*)
 
 
