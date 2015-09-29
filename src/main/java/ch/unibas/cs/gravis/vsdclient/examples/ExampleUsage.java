@@ -40,7 +40,7 @@ public class ExampleUsage {
 
             VSDCommonObjectInfo rawObjectInfo = null;
             for(int i =0; i < objects.length; i++) {
-                if((int) objects[i].type().get() == 1 ) rawObjectInfo = objects[i];
+                if((Integer) objects[i].type().get() == 1 ) rawObjectInfo = objects[i];
             }
 
             VSDRawImageObjectInfo info =  Await.result(vsd.getVSDObjectInfo(new VSDURL(rawObjectInfo.selfUrl()), VSDJson.VSDRawImageObjectInfoProtocol()), Duration.apply("2 seconds"));
