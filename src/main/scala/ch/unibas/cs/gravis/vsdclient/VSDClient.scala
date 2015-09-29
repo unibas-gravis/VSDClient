@@ -42,7 +42,7 @@ import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
-/** *
+/**
   * Class representing an authenticated session with the VSD. Once successfully created, all operations on the VSD can be performed by accessing methods of this class
   */
 
@@ -451,7 +451,7 @@ class VSDClient private(user: String, password: String, BASE_URL: String) {
     else Future.successful(partialRes)
   }
 
-  /** *
+  /**
     * This method is intended as an alternative to Future.sequence(vsd.downloadVSDObject(..)). In better words, this takes a list of VSDURLs
     * and download the corresponding objects ONE by ONE and stops at the first failure. In contrast, Future.sequence, would trigger all download Futures
     * in parallel which might result in a too heavy load and eventually timeouts.
