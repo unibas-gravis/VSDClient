@@ -35,9 +35,9 @@ object ExampleUsage {
     val futre = for {
       folders <- vsd.listFolders() // list folders
       objects <- vsd.listPublishedObjects() // list published object
-      rawObjectInfo = objects.toIndexedSeq.filter(_.`type`.get == 1).last // find a raw object
+      rawObjectInfo = objects.toIndexedSeq.filter(_.`type`.name == VSDRawImageObjectType.name).last // find a raw object
       info <- vsd.getVSDObjectInfo[VSDRawImageObjectInfo](VSDURL(rawObjectInfo.selfUrl)) // get a more detailed information
-      modality <- vsd.getModality(info.modality.get)
+      modality <- vsd.getModality(info.rawImage.modality.get)
     } yield {
         println("object modality " + modality.name)
         vsd.shutdown()

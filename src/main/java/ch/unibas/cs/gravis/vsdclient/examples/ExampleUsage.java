@@ -40,12 +40,12 @@ public class ExampleUsage {
 
             VSDCommonObjectInfo rawObjectInfo = null;
             for(int i =0; i < objects.length; i++) {
-                if((Integer) objects[i].type().get() == 1 ) rawObjectInfo = objects[i];
+                if( objects[i].type().name().equals(VSDRawImageObjectType.name()) ) rawObjectInfo = objects[i];
             }
 
             VSDRawImageObjectInfo info =  Await.result(vsd.getVSDObjectInfo(new VSDURL(rawObjectInfo.selfUrl()), VSDJson.VSDRawImageObjectInfoProtocol()), Duration.apply("2 seconds"));
 
-            VSDModality modality = Await.result(vsd.getModality(new VSDURL(info.modality().get().selfUrl())), Duration.apply("5 seconds"));
+            VSDModality modality = Await.result(vsd.getModality(new VSDURL(info.rawImage().modality().get().selfUrl())), Duration.apply("5 seconds"));
 
             System.out.println("object modality " + modality.name());
 
