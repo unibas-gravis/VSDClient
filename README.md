@@ -24,7 +24,7 @@ To use VSDClient in your own project, you can either : add the following lines t
 ```
 libraryDependencies  ++= Seq(
             // other dependencies here
-            "ch.unibas.cs.gravis" %% "vsdclient" % "0.1.+"
+            "ch.unibas.cs.gravis" %% "vsdclient" % "0.2.+"
 )
 ```
 
