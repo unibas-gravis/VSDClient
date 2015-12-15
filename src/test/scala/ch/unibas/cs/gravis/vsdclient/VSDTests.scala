@@ -338,7 +338,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val obj2Id = Await.result(object2P.future, Duration(3, MINUTES))
 
       val fut = for {
-        obj2Info <- vsd.getVSDObjectInfo[VSDSegmentationObjectInfo](obj2Id)
+        obj2Info <- vsd.getVSDObjectInfo[VSDCommonObjectInfo](obj2Id)
         link <- vsd.addLink(VSDURL(obj2Info.selfUrl), VSDURL(obj1Info.selfUrl))
         lookedUpLink <- vsd.getLinkInfo(VSDURL(link.selfUrl))
       } yield {(lookedUpLink,obj2Info)}
