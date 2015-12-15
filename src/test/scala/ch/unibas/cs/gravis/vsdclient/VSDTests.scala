@@ -120,7 +120,7 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       val info = vsd.getVSDObjectInfo[VSDRawImageObjectInfo](objId)
       whenReady(info, timeout(Span(1, Minutes))) { i =>
         objInfo.success(i)
-        assert(i.sliceThickness.get === 0.67f)
+        assert(i.rawImage.sliceThickness.get === 0.67f)
       }
       info onFailure {
         case e => objInfo.failure(new Exception("Failed to retrieve info to modifiy : " + e))
@@ -140,8 +140,8 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       } yield updatedInfo
 
       whenReady(f, timeout(Span(1, Minutes))) { s =>
-        assert(s.sliceThickness.get === 0.67f)
-        assert(s.sliceThickness.get === 0.67f)
+        assert(s.rawImage.sliceThickness.get === 0.67f)
+        assert(s.rawImage.sliceThickness.get === 0.67f)
         assert(s.description.get === newDescription)
       }
     }
@@ -363,26 +363,15 @@ class VSDTests extends FunSpec with ShouldMatchers with ScalaFutures {
       }
     }
 
-    val statModelTypeP = scala.concurrent.Promise[Int]
-    it("can list the object types supported by the VSD") {
-      val r = vsd.listObjectTypes()
-      whenReady(r, timeout(Span(1, Minutes))) { u =>
-        val s = u.find{ pair  => pair._2 == "StatisticalModel"}
-        assert(s.isDefined)
-        statModelTypeP.success(s.get._1)
-      }
-    }
-
     it("can upload a statistical model and have it recognized as such") {
       val path = getClass().getResource("/torus.h5").getPath
-      val statModelType = Await.result(statModelTypeP.future, Duration(1, MINUTES))
       val f = for {
         s <- vsd.uploadFile(new File(path),5).map { t => t.relatedObject}
         i <- vsd.getVSDObjectInfo[VSDStatisticalModelObjectInfo](s)
       } yield i
 
       whenReady(f, timeout(Span(2, Minutes))) { info =>
-        assert(info.`type`.get == statModelType)
+        assert(info.`type`.name == VSDStatisticalModelObjectType.name)
         // delete it immediately
         vsd.deleteUnpublishedVSDObject(VSDURL(info.selfUrl))
       }

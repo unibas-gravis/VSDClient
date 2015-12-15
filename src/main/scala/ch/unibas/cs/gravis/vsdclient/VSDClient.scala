@@ -582,17 +582,6 @@ class VSDClient private(user: String, password: String, BASE_URL: String) {
   }
 
   /**
-   * Lists the types of objects supported by the VSD (e.g. Raw, Segmentation, ..)
-   */
-  def listObjectTypes(): Future[Seq[(Int, String)]] = {
-    println("Listing object types")
-    val channel = authChannel ~> unmarshal[VSDObjectOptions]
-    channel(Options(s"$BASE_URL/objects")).map {
-      _.types.map(kv => (kv.key, kv.value))
-    }
-  }
-
-  /**
    * Publishes (validates) an object
    *
    */

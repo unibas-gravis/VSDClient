@@ -41,7 +41,7 @@ trait VSDObjectInfo {
   val name : String
   val description: Option[String]
   val ontologyCount: Option[Int]
-  val `type`: Option[Int]
+  val `type`: VSDObjectType
   val downloadUrl: String
   val license: Option[VSDURL]
   val files: VSDPaginatedList[VSDURL]
@@ -60,18 +60,18 @@ trait VSDObjectInfo {
   * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
   *
   */
-case class VSDCommonObjectInfo(id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
+case class VSDCommonObjectInfo(id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: VSDObjectType,
                                downloadUrl: String, license: Option[VSDURL], files: VSDPaginatedList[VSDURL], linkedObjects: Option[VSDPaginatedList[VSDURL]], linkedObjectRelations: Option[VSDPaginatedList[VSDURL]],
                                ontologyItems: Option[VSDPaginatedList[VSDURL]], ontologyItemRelations: Option[VSDPaginatedList[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
                                objectUserRights: Option[Seq[VSDURL]], selfUrl: String) extends VSDObjectInfo
 
 /**
-  * Information for VSD Objects of type RAW (i.e. raw intensity images). Additionally to the common object information, this adds optional fields such as slice thickness, inter-spacing, signal strength, modality, ..
+  * Information for VSD Objects of type RawImage (i.e. raw intensity images). Additionally to the common object information, this adds optional fields such as slice thickness, inter-spacing, signal strength, modality, ..
   * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
   *
   */
-case class VSDRawImageObjectInfo(sliceThickness: Option[Float], spaceBetweenSlices: Option[Float], kilovoltPeak: Option[Float],
-                                 modality: Option[VSDURL], id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
+case class VSDRawImageObjectInfo(rawImage: VSDRawImage, 
+                                 id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: VSDObjectType,
                                  downloadUrl: String, license: Option[VSDURL], files: VSDPaginatedList[VSDURL], linkedObjects: Option[VSDPaginatedList[VSDURL]], linkedObjectRelations: Option[VSDPaginatedList[VSDURL]],
                                  ontologyItems: Option[VSDPaginatedList[VSDURL]], ontologyItemRelations: Option[VSDPaginatedList[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
                                  objectUserRights: Option[Seq[VSDURL]], selfUrl: String) extends VSDObjectInfo
@@ -81,7 +81,8 @@ case class VSDRawImageObjectInfo(sliceThickness: Option[Float], spaceBetweenSlic
   * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
   *
   */
-case class VSDSegmentationObjectInfo(segmentationMethodDescription: Option[String], segmentationMethod: Option[VSDURL], id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
+case class VSDSegmentationObjectInfo(segmentationImage: VSDSegmentationImage,
+                                     id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: VSDObjectType,
                                      downloadUrl: String, license: Option[VSDURL], files: VSDPaginatedList[VSDURL], linkedObjects: Option[VSDPaginatedList[VSDURL]], linkedObjectRelations: Option[VSDPaginatedList[VSDURL]],
                                      ontologyItems: Option[VSDPaginatedList[VSDURL]], ontologyItemRelations: Option[VSDPaginatedList[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
                                      objectUserRights: Option[Seq[VSDURL]], selfUrl: String) extends VSDObjectInfo
@@ -92,10 +93,24 @@ case class VSDSegmentationObjectInfo(segmentationMethodDescription: Option[Strin
   * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
   *
   */
-case class VSDStatisticalModelObjectInfo(id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: Option[Int],
+case class VSDStatisticalModelObjectInfo(id: Int, createdDate: String, name:String, description: Option[String], ontologyCount: Option[Int], `type`: VSDObjectType,
                                          downloadUrl: String, license: Option[VSDURL], files: VSDPaginatedList[VSDURL], linkedObjects: Option[VSDPaginatedList[VSDURL]], linkedObjectRelations: Option[VSDPaginatedList[VSDURL]],
                                          ontologyItems: Option[VSDPaginatedList[VSDURL]], ontologyItemRelations: Option[VSDPaginatedList[VSDURL]], objectPreviews: Option[Seq[VSDURL]], objectGroupRights: Option[Seq[VSDURL]],
                                          objectUserRights: Option[Seq[VSDURL]], selfUrl: String) extends VSDObjectInfo
+
+/**
+  * Information about RawImage such as slice thickness, inter-spacing, signal strength, modality, ..
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  *
+  */
+case class VSDRawImage(sliceThickness: Option[Float], spaceBetweenSlices: Option[Float], kilovoltPeak: Option[Float], modality: Option[VSDURL])                                     
+
+/**
+  * Information about SegmentationImage such as segmentation method, and a description ..
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  *
+  */
+case class VSDSegmentationImage(methodDescription: Option[String], segmentationMethod: Option[VSDURL]) 
 
 /**
  * Class identifying a user on the VSD
@@ -173,16 +188,6 @@ case class VSDModality(id: Int, name: String, description: String, selfUrl: Stri
   */
 case class VSDSegmentationMethod(id: Int, name: String, selfUrl: String)
 
-/**
-  * Class of Key-Value entries
-  */
-case class VSDKeyValEntry(key : Int, value: String)
-
-/**
-  * Class summing object types supported by the VSD. These can be RawImage,Segmentation, StatisticalModel, ..
-  */
-case class VSDObjectOptions(types : Seq[VSDKeyValEntry])
-
 
 /**
   * Class of rights than can be attributed to VSD objects and Folders
@@ -243,6 +248,80 @@ case class VSDObjectUserRight(id : Int, relatedObject:VSDURL, relatedUser: VSDUR
   */
 case class VSDGroup(id :Int, name: String, chief:Option[VSDURL], selfUrl: String)
 
+
+/**
+ * Class identifying an object type on the VSD
+ * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+ *
+ */
+sealed case class VSDObjectType(name: String, displayName: String, displayNameShort: String, selfUrl: String)
+/**
+  * Plain object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDPlainObjectType extends VSDObjectType("Plain", "Other", "OTHER", "https://demo.virtualskeleton.ch/api/object_types/Plain")
+/**
+  * PlainSubject object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDPlainSubjectObjectType extends VSDObjectType("PlainSubject", "Other", "OTHER", "https://demo.virtualskeleton.ch/api/object_types/PlainSubject")
+/**
+  * Subject object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDSubjectObjectType extends VSDObjectType("Subject", "Subject", "Subject", "https://demo.virtualskeleton.ch/api/object_types/Subject")
+/**
+  * Study object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDStudyObjectType extends VSDObjectType("Study", "Study", "Study", "https://demo.virtualskeleton.ch/api/object_types/Study")
+/**
+  * RawImage object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDRawImageObjectType extends VSDObjectType("RawImage", "Raw Image", "RAW", "https://demo.virtualskeleton.ch/api/object_types/RawImage")
+/**
+  * SegmentationImage object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDSegmentationImageObjectType extends VSDObjectType("SegmentationImage", "Segmentation Image", "SEG", "https://demo.virtualskeleton.ch/api/object_types/SegmentationImage")
+/**
+  * StatisticalModel object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDStatisticalModelObjectType extends VSDObjectType("StatisticalModel", "Statistical Model", "SM", "https://demo.virtualskeleton.ch/api/object_types/StatisticalModel")
+/**
+  * SurfaceModel object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDSurfaceModelObjectType extends VSDObjectType("SurfaceModel", "Surface Model", "SURF", "https://demo.virtualskeleton.ch/api/object_types/SurfaceModel")
+/**
+  * ClinicalStudyData object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDClinicalStudyDataObjectType extends VSDObjectType("ClinicalStudyData", "Clinical Study Data", "CSData", "https://demo.virtualskeleton.ch/api/object_types/ClinicalStudyData")
+/**
+  * ClinicalStudyDefinition object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDClinicalStudyDefinitionObjectType extends VSDObjectType("ClinicalStudyDefinition", "Clinical Study Definition", "CSDef", "https://demo.virtualskeleton.ch/api/object_types/ClinicalStudyDefinition")
+/**
+  * GenomicPlatform object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDGenomicPlatformObjectType extends VSDObjectType("GenomicPlatform", "Genomic Platform", "GPL", "https://demo.virtualskeleton.ch/api/object_types/GenomicPlatform")
+/**
+  * GenomicSample object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDGenomicSampleObjectType extends VSDObjectType("GenomicSample", "Genomic Sample", "GSM", "https://demo.virtualskeleton.ch/api/object_types/GenomicSample")
+/**
+  * GenomicSeries object type
+  * The sub-fields names should be self-explanatory. In case of doubt, please check the [[https://www.virtualskeleton.ch/api/Help VSD's API doc]]
+  */
+object VSDGenomicSeriesObjectType extends VSDObjectType("GenomicSeries", "Genomic Series", "GSE", "https://demo.virtualskeleton.ch/api/object_types/GenomicSeries")
+
+
 /**
   * Defines variables required de/serializing VSD related classes from/to Json
   *
@@ -251,10 +330,12 @@ object VSDJson {
 
   implicit val VSDURLProtocol : RootJsonFormat[VSDURL] = jsonFormat1(VSDURL.apply)
   implicit val FileUploadResponseFormat  : RootJsonFormat[FileUploadResponse] = jsonFormat2(FileUploadResponse.apply)
-  implicit val VSDRawImageObjectInfoProtocol : RootJsonFormat[VSDRawImageObjectInfo] = rootFormat(lazyFormat(jsonFormat21(VSDRawImageObjectInfo)))
-  implicit val VSDSegmentationObjectInfoProtocol : RootJsonFormat[VSDSegmentationObjectInfo]= rootFormat(lazyFormat(jsonFormat19(VSDSegmentationObjectInfo)))
+  implicit val VSDRawImageObjectInfoProtocol : RootJsonFormat[VSDRawImageObjectInfo] = rootFormat(lazyFormat(jsonFormat18(VSDRawImageObjectInfo)))
+  implicit val VSDSegmentationObjectInfoProtocol : RootJsonFormat[VSDSegmentationObjectInfo]= rootFormat(lazyFormat(jsonFormat18(VSDSegmentationObjectInfo)))
   implicit val VSDCommonObjectInfoProtocol : RootJsonFormat[VSDCommonObjectInfo] = rootFormat(lazyFormat(jsonFormat17(VSDCommonObjectInfo)))
   implicit val VSDStatModelObjectInfoProtocol : RootJsonFormat[VSDStatisticalModelObjectInfo] = rootFormat(lazyFormat(jsonFormat17(VSDStatisticalModelObjectInfo)))
+  implicit val VSDRawImageProtocol : RootJsonFormat[VSDRawImage] = jsonFormat4(VSDRawImage)
+  implicit val VSDSegmentationImageProtocol : RootJsonFormat[VSDSegmentationImage] = jsonFormat2(VSDSegmentationImage)
   implicit val VSDOntologyProtocol : RootJsonFormat[VSDOntology] = jsonFormat2(VSDOntology)
   implicit val VSDOntologiesProtocol : RootJsonFormat[VSDOntologies] = jsonFormat1(VSDOntologies)
   implicit val VSDOntologyItemProtocol: RootJsonFormat[VSDOntologyItem] = jsonFormat4(VSDOntologyItem)
@@ -273,8 +354,6 @@ object VSDJson {
   implicit val VSDPaginatedModalityProtocol : RootJsonFormat[VSDPaginatedList[VSDModality]]= jsonFormat4(VSDPaginatedList[VSDModality])
   implicit val VSDSegmentationMethodProtocol : RootJsonFormat[VSDSegmentationMethod]= jsonFormat3(VSDSegmentationMethod)
   implicit val VSDPaginatedSegMethodProtocol: RootJsonFormat[VSDPaginatedList[VSDSegmentationMethod]] = jsonFormat4(VSDPaginatedList[VSDSegmentationMethod])
-  implicit val VSDKeyValEntryProtocol: RootJsonFormat[VSDKeyValEntry] = jsonFormat2(VSDKeyValEntry)
-  implicit val VSDObjectOptionsProtocol: RootJsonFormat[VSDObjectOptions] = jsonFormat1(VSDObjectOptions)
   implicit val VSDObjectRightProtocol: RootJsonFormat[VSDObjectRight] = jsonFormat4(VSDObjectRight)
   implicit val VSDPaginatedRightsProtocol : RootJsonFormat[VSDPaginatedList[VSDObjectRight]]= jsonFormat4(VSDPaginatedList[VSDObjectRight])
   implicit val VSDGroupProtocol: RootJsonFormat[VSDGroup] = jsonFormat4(VSDGroup.apply)
@@ -282,4 +361,5 @@ object VSDJson {
   implicit val VSDObjectUserRightProtocol: RootJsonFormat[VSDObjectUserRight] = jsonFormat5(VSDObjectUserRight.apply)
   implicit val VSDPaginatedGroupProtocol: RootJsonFormat[VSDPaginatedList[VSDGroup]] = jsonFormat4(VSDPaginatedList[VSDGroup])
   implicit val VSDPaginatedURLProtocol: RootJsonFormat[VSDPaginatedList[VSDURL]] = jsonFormat4(VSDPaginatedList[VSDURL])
+  implicit val VSDObjectTypeProtocol : RootJsonFormat[VSDObjectType] = jsonFormat4(VSDObjectType)
 }
