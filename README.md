@@ -197,44 +197,8 @@ On success, this returns the list of the downloaded VSD objects contained in the
 
 #### Usage from Java : 
 
-Although the library is written in Scala, it can be easily accessed from within a Java program. Below is an example creating a session and performing several dependent tasks, this time however by blocking for every Asynchronous call :
-```java 
-public class ExampleUsage {
+Although the library is written in Scala, it can be easily accessed from within a Java program. [Here](https://github.com/unibas-gravis/VSDClient/blob/master/src/main/java/ch/unibas/cs/gravis/vsdclient/examples/ExampleUsage.java) is an example creating a session and performing several dependent tasks, this time however by blocking for every Asynchronous call.
 
-    public static void main(String[] args) {
-
-        VSDClient vsd = VSDClient.demo("demo@virtualskeleton.ch", "demo").get();
-
-        try {
-            // list folders
-            VSDFolder[] folders = Await.result(vsd.listFolders(2), Duration.apply("2 seconds"));
-            System.out.println("first folder " + folders[0]);
-
-            // list unpublished objects
-            VSDCommonObjectInfo[] objects = Await.result(vsd.listUnpublishedObjects(3), Duration.apply("5 seconds"));
-
-            // find the first contained object of type Raw	
-            VSDCommonObjectInfo rawObjectInfo = null;
-            for(int i =0; i < objects.length; i++) {
-                System.out.println("object " + objects[i]);
-                if((int) objects[i].type().get() == 1 ) rawObjectInfo = objects[i];
-            }
-
-            // retrieve raw image information
-            VSDRawImageObjectInfo info =  Await.result(vsd.getVSDObjectInfo(new VSDURL(rawObjectInfo.selfUrl()), VSDJson.VSDRawImageObjectInfoProtocol()), Duration.apply("2 seconds"));
-            
-            // printout the modality
-            System.out.println("first object modality " + info.modality());
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        vsd.shutdown();
-    }
-
-}
-```
 
 #### Further functionality : 
 
